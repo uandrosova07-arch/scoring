@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "status": "DRAFT: пороги не согласованы с продактом, business_age_months/requested_amount_rub/term_months предложены ScoringML",
+    "units": "рубли целыми числами; revenue_rub, expenses_rub, net_profit_rub за 12 месяцев, monthly_debt_payments_rub за месяц",
+    "missing_value_convention": "поле присутствует со значением null"
+  },
+  "samples": [
+    {
+      "id": "stable-1",
+      "scenario": "stable_finances",
+      "input": {
+        "business_age_months": 84,
+        "revenue_rub": 48000000,
+        "expenses_rub": 30000000,
+        "net_profit_rub": 18000000,
+        "monthly_debt_payments_rub": 100000,
+        "requested_amount_rub": 1500000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "low",
+        "reason_codes": [
+          "EXPENSE_RATIO_OK",
+          "DEBT_LOAD_LOW"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "highload-1",
+      "scenario": "high_debt_load",
+      "input": {
+        "business_age_months": 36,
+        "revenue_rub": 36000000,
+        "expenses_rub": 30000000,
+        "net_profit_rub": 6000000,
+        "monthly_debt_payments_rub": 250000,
+        "requested_amount_rub": 3000000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "high",
+        "reason_codes": [
+          "EXPENSE_RATIO_MODERATE",
+          "DEBT_LOAD_HIGH"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "missing-1",
+      "scenario": "missing_data",
+      "input": {
+        "business_age_months": 4,
+        "revenue_rub": 3000000,
+        "expenses_rub": null,
+        "net_profit_rub": null,
+        "monthly_debt_payments_rub": 0,
+        "requested_amount_rub": 300000,
+        "term_months": 6
+      },
+      "expected": {
+        "risk_level": "undetermined",
+        "reason_codes": [
+          "INSUFFICIENT_DATA"
+        ],
+        "missing_data": [
+          "expenses_rub"
+        ]
+      }
+    }
+  ]
+}

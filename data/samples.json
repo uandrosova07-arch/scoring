@@ -1,0 +1,267 @@
+{
+  "meta": {
+    "status": "DRAFT: пороги не согласованы с продактом, business_age_months/requested_amount_rub/term_months предложены ScoringML",
+    "units": "рубли целыми числами; revenue_rub, expenses_rub, net_profit_rub за 12 месяцев, monthly_debt_payments_rub за месяц",
+    "missing_value_convention": "поле присутствует со значением null"
+  },
+  "samples": [
+    {
+      "id": "stable-1",
+      "scenario": "stable_finances",
+      "input": {
+        "business_age_months": 84,
+        "revenue_rub": 48000000,
+        "expenses_rub": 30000000,
+        "net_profit_rub": 18000000,
+        "monthly_debt_payments_rub": 100000,
+        "requested_amount_rub": 1500000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "low",
+        "reason_codes": [
+          "EXPENSE_RATIO_OK",
+          "DEBT_LOAD_LOW"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "stable-2",
+      "scenario": "stable_finances",
+      "input": {
+        "business_age_months": 120,
+        "revenue_rub": 120000000,
+        "expenses_rub": 78000000,
+        "net_profit_rub": 42000000,
+        "monthly_debt_payments_rub": 300000,
+        "requested_amount_rub": 5000000,
+        "term_months": 24
+      },
+      "expected": {
+        "risk_level": "low",
+        "reason_codes": [
+          "EXPENSE_RATIO_OK",
+          "DEBT_LOAD_LOW"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "stable-3",
+      "scenario": "stable_finances",
+      "input": {
+        "business_age_months": 48,
+        "revenue_rub": 25000000,
+        "expenses_rub": 17000000,
+        "net_profit_rub": 8000000,
+        "monthly_debt_payments_rub": 0,
+        "requested_amount_rub": 1000000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "low",
+        "reason_codes": [
+          "EXPENSE_RATIO_OK",
+          "DEBT_LOAD_LOW"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "highload-1",
+      "scenario": "high_debt_load",
+      "input": {
+        "business_age_months": 36,
+        "revenue_rub": 36000000,
+        "expenses_rub": 30000000,
+        "net_profit_rub": 6000000,
+        "monthly_debt_payments_rub": 250000,
+        "requested_amount_rub": 3000000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "high",
+        "reason_codes": [
+          "EXPENSE_RATIO_MODERATE",
+          "DEBT_LOAD_HIGH"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "highload-2",
+      "scenario": "high_debt_load",
+      "input": {
+        "business_age_months": 60,
+        "revenue_rub": 60000000,
+        "expenses_rub": 45000000,
+        "net_profit_rub": 15000000,
+        "monthly_debt_payments_rub": 600000,
+        "requested_amount_rub": 4000000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "high",
+        "reason_codes": [
+          "EXPENSE_RATIO_MODERATE",
+          "DEBT_LOAD_HIGH"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "highload-3",
+      "scenario": "high_debt_load",
+      "input": {
+        "business_age_months": 30,
+        "revenue_rub": 40000000,
+        "expenses_rub": 26000000,
+        "net_profit_rub": 14000000,
+        "monthly_debt_payments_rub": 400000,
+        "requested_amount_rub": 2400000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "medium",
+        "reason_codes": [
+          "EXPENSE_RATIO_OK",
+          "DEBT_LOAD_MEDIUM"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "missing-1",
+      "scenario": "missing_data",
+      "input": {
+        "business_age_months": 4,
+        "revenue_rub": 3000000,
+        "expenses_rub": null,
+        "net_profit_rub": null,
+        "monthly_debt_payments_rub": 0,
+        "requested_amount_rub": 300000,
+        "term_months": 6
+      },
+      "expected": {
+        "risk_level": "undetermined",
+        "reason_codes": [
+          "INSUFFICIENT_DATA"
+        ],
+        "missing_data": [
+          "expenses_rub"
+        ]
+      }
+    },
+    {
+      "id": "missing-2",
+      "scenario": "missing_data",
+      "input": {
+        "business_age_months": 24,
+        "revenue_rub": 18000000,
+        "expenses_rub": null,
+        "net_profit_rub": null,
+        "monthly_debt_payments_rub": null,
+        "requested_amount_rub": 1000000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "undetermined",
+        "reason_codes": [
+          "INSUFFICIENT_DATA"
+        ],
+        "missing_data": [
+          "expenses_rub",
+          "monthly_debt_payments_rub"
+        ]
+      }
+    },
+    {
+      "id": "missing-3",
+      "scenario": "missing_data",
+      "input": {
+        "business_age_months": 18,
+        "revenue_rub": null,
+        "expenses_rub": null,
+        "net_profit_rub": null,
+        "monthly_debt_payments_rub": null,
+        "requested_amount_rub": 800000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "undetermined",
+        "reason_codes": [
+          "INSUFFICIENT_DATA"
+        ],
+        "missing_data": [
+          "revenue_rub",
+          "expenses_rub",
+          "monthly_debt_payments_rub"
+        ]
+      }
+    },
+    {
+      "id": "thinmargin-1",
+      "scenario": "thin_margin",
+      "input": {
+        "business_age_months": 40,
+        "revenue_rub": 30000000,
+        "expenses_rub": 29000000,
+        "net_profit_rub": 1000000,
+        "monthly_debt_payments_rub": 20000,
+        "requested_amount_rub": 500000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "high",
+        "reason_codes": [
+          "EXPENSE_RATIO_HIGH",
+          "DEBT_LOAD_HIGH"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "thinmargin-2",
+      "scenario": "thin_margin",
+      "input": {
+        "business_age_months": 22,
+        "revenue_rub": 20000000,
+        "expenses_rub": 21000000,
+        "net_profit_rub": -1000000,
+        "monthly_debt_payments_rub": 50000,
+        "requested_amount_rub": 600000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "high",
+        "reason_codes": [
+          "EXPENSE_RATIO_HIGH",
+          "NO_PROFIT"
+        ],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "thinmargin-3",
+      "scenario": "thin_margin",
+      "input": {
+        "business_age_months": 52,
+        "revenue_rub": 50000000,
+        "expenses_rub": 43000000,
+        "net_profit_rub": 7000000,
+        "monthly_debt_payments_rub": 50000,
+        "requested_amount_rub": 1200000,
+        "term_months": 12
+      },
+      "expected": {
+        "risk_level": "medium",
+        "reason_codes": [
+          "EXPENSE_RATIO_MODERATE",
+          "DEBT_LOAD_LOW"
+        ],
+        "missing_data": []
+      }
+    }
+  ]
+}
