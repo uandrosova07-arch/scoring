@@ -1,266 +1,975 @@
 {
   "meta": {
-    "status": "DRAFT: пороги не согласованы с продактом, business_age_months/requested_amount_rub/term_months предложены ScoringML",
-    "units": "рубли целыми числами; revenue_rub, expenses_rub, net_profit_rub за 12 месяцев, monthly_debt_payments_rub за месяц",
-    "missing_value_convention": "поле присутствует со значением null"
+    "status": "DRAFT: пороги и баллы не согласованы с продактом",
+    "contract": "docs/scoring-contract.md в репозитории backend (POST /api/v1/score)",
+    "note": "expected считался независимым кодом, не самим сервисом; факторы сверяются по impact"
   },
   "samples": [
     {
       "id": "stable-1",
       "scenario": "stable_finances",
       "input": {
-        "business_age_months": 84,
-        "revenue_rub": 48000000,
-        "expenses_rub": 30000000,
-        "net_profit_rub": 18000000,
-        "monthly_debt_payments_rub": 100000,
-        "requested_amount_rub": 1500000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000001",
+        "application": {
+          "id": "stable-1",
+          "number": "AC-000001",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 137520,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-10-12",
+          "business_age_months": 84,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 30000000,
+            "net_profit_rub": 18000000,
+            "monthly_debt_payments_rub": 100000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 48000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 100000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "low",
-        "reason_codes": [
-          "EXPENSE_RATIO_OK",
-          "DEBT_LOAD_LOW"
-        ],
-        "missing_data": []
+        "score": 95,
+        "risk_grade": "A",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": 15,
+          "factor_debt_load": 20
+        }
       }
     },
     {
       "id": "stable-2",
       "scenario": "stable_finances",
       "input": {
-        "business_age_months": 120,
-        "revenue_rub": 120000000,
-        "expenses_rub": 78000000,
-        "net_profit_rub": 42000000,
-        "monthly_debt_payments_rub": 300000,
-        "requested_amount_rub": 5000000,
-        "term_months": 24
+        "request_id": "00000000-0000-4000-8000-000000000002",
+        "application": {
+          "id": "stable-2",
+          "number": "AC-000002",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 5000000,
+          "term_months": 24,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 249621,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2016-10-12",
+          "business_age_months": 120,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 120000000,
+            "expenses_rub": 78000000,
+            "net_profit_rub": 42000000,
+            "monthly_debt_payments_rub": 300000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 120000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 300000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "low",
-        "reason_codes": [
-          "EXPENSE_RATIO_OK",
-          "DEBT_LOAD_LOW"
-        ],
-        "missing_data": []
+        "score": 95,
+        "risk_grade": "A",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": 15,
+          "factor_debt_load": 20
+        }
       }
     },
     {
       "id": "stable-3",
       "scenario": "stable_finances",
       "input": {
-        "business_age_months": 48,
-        "revenue_rub": 25000000,
-        "expenses_rub": 17000000,
-        "net_profit_rub": 8000000,
-        "monthly_debt_payments_rub": 0,
-        "requested_amount_rub": 1000000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000003",
+        "application": {
+          "id": "stable-3",
+          "number": "AC-000003",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 91680,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2022-10-12",
+          "business_age_months": 48,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 25000000,
+            "expenses_rub": 17000000,
+            "net_profit_rub": 8000000,
+            "monthly_debt_payments_rub": 0
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 25000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 0,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "low",
-        "reason_codes": [
-          "EXPENSE_RATIO_OK",
-          "DEBT_LOAD_LOW"
-        ],
-        "missing_data": []
+        "score": 95,
+        "risk_grade": "A",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": 15,
+          "factor_debt_load": 20
+        }
       }
     },
     {
       "id": "highload-1",
       "scenario": "high_debt_load",
       "input": {
-        "business_age_months": 36,
-        "revenue_rub": 36000000,
-        "expenses_rub": 30000000,
-        "net_profit_rub": 6000000,
-        "monthly_debt_payments_rub": 250000,
-        "requested_amount_rub": 3000000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000004",
+        "application": {
+          "id": "highload-1",
+          "number": "AC-000004",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 3000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 275040,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2023-10-12",
+          "business_age_months": 36,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 36000000,
+            "expenses_rub": 30000000,
+            "net_profit_rub": 6000000,
+            "monthly_debt_payments_rub": 250000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 36000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 250000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "high",
-        "reason_codes": [
-          "EXPENSE_RATIO_MODERATE",
-          "DEBT_LOAD_HIGH"
-        ],
-        "missing_data": []
+        "score": 25,
+        "risk_grade": "E",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 0,
+          "factor_expense_ratio": -5,
+          "factor_debt_load": -20
+        }
       }
     },
     {
       "id": "highload-2",
       "scenario": "high_debt_load",
       "input": {
-        "business_age_months": 60,
-        "revenue_rub": 60000000,
-        "expenses_rub": 45000000,
-        "net_profit_rub": 15000000,
-        "monthly_debt_payments_rub": 600000,
-        "requested_amount_rub": 4000000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000005",
+        "application": {
+          "id": "highload-2",
+          "number": "AC-000005",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 4000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 366720,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2021-10-12",
+          "business_age_months": 60,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 60000000,
+            "expenses_rub": 45000000,
+            "net_profit_rub": 15000000,
+            "monthly_debt_payments_rub": 600000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 60000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 600000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "high",
-        "reason_codes": [
-          "EXPENSE_RATIO_MODERATE",
-          "DEBT_LOAD_HIGH"
-        ],
-        "missing_data": []
+        "score": 35,
+        "risk_grade": "D",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": -5,
+          "factor_debt_load": -20
+        }
       }
     },
     {
       "id": "highload-3",
       "scenario": "high_debt_load",
       "input": {
-        "business_age_months": 30,
-        "revenue_rub": 40000000,
-        "expenses_rub": 26000000,
-        "net_profit_rub": 14000000,
-        "monthly_debt_payments_rub": 400000,
-        "requested_amount_rub": 2400000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000006",
+        "application": {
+          "id": "highload-3",
+          "number": "AC-000006",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 2400000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 220032,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2024-04-12",
+          "business_age_months": 30,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 40000000,
+            "expenses_rub": 26000000,
+            "net_profit_rub": 14000000,
+            "monthly_debt_payments_rub": 400000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 40000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 400000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "medium",
-        "reason_codes": [
-          "EXPENSE_RATIO_OK",
-          "DEBT_LOAD_MEDIUM"
-        ],
-        "missing_data": []
+        "score": 65,
+        "risk_grade": "B",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 0,
+          "factor_expense_ratio": 15,
+          "factor_debt_load": 0
+        }
       }
     },
     {
       "id": "missing-1",
       "scenario": "missing_data",
       "input": {
-        "business_age_months": 4,
-        "revenue_rub": 3000000,
-        "expenses_rub": null,
-        "net_profit_rub": null,
-        "monthly_debt_payments_rub": 0,
-        "requested_amount_rub": 300000,
-        "term_months": 6
+        "request_id": "00000000-0000-4000-8000-000000000007",
+        "application": {
+          "id": "missing-1",
+          "number": "AC-000007",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 300000,
+          "term_months": 6,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 52658,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2026-06-12",
+          "business_age_months": 4,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 3000000,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 0
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 3000000
+          },
+          "credit_bureau": null,
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "undetermined",
-        "reason_codes": [
-          "INSUFFICIENT_DATA"
-        ],
+        "score": 40,
+        "risk_grade": "D",
         "missing_data": [
-          "expenses_rub"
-        ]
+          "company.financials.expenses_rub"
+        ],
+        "factor_impacts": {
+          "factor_insufficient_data": -10,
+          "factor_expense_ratio": 0,
+          "factor_business_age": 0,
+          "factor_debt_load": 0
+        }
       }
     },
     {
       "id": "missing-2",
       "scenario": "missing_data",
       "input": {
-        "business_age_months": 24,
-        "revenue_rub": 18000000,
-        "expenses_rub": null,
-        "net_profit_rub": null,
-        "monthly_debt_payments_rub": null,
-        "requested_amount_rub": 1000000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000008",
+        "application": {
+          "id": "missing-2",
+          "number": "AC-000008",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 91680,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2024-10-12",
+          "business_age_months": 24,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 18000000,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": null
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 18000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 0,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "undetermined",
-        "reason_codes": [
-          "INSUFFICIENT_DATA"
-        ],
+        "score": 40,
+        "risk_grade": "D",
         "missing_data": [
-          "expenses_rub",
-          "monthly_debt_payments_rub"
-        ]
+          "company.financials.expenses_rub",
+          "company.financials.monthly_debt_payments_rub"
+        ],
+        "factor_impacts": {
+          "factor_insufficient_data": -10,
+          "factor_expense_ratio": 0,
+          "factor_business_age": 0,
+          "factor_debt_load": 0
+        }
       }
     },
     {
       "id": "missing-3",
       "scenario": "missing_data",
       "input": {
-        "business_age_months": 18,
-        "revenue_rub": null,
-        "expenses_rub": null,
-        "net_profit_rub": null,
-        "monthly_debt_payments_rub": null,
-        "requested_amount_rub": 800000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000009",
+        "application": {
+          "id": "missing-3",
+          "number": "AC-000009",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 800000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 73344,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2025-04-12",
+          "business_age_months": 18,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": null,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": null
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": null,
+          "fns": null,
+          "credit_bureau": null,
+          "fssp": null
+        }
       },
       "expected": {
-        "risk_level": "undetermined",
-        "reason_codes": [
-          "INSUFFICIENT_DATA"
-        ],
+        "score": 40,
+        "risk_grade": "D",
         "missing_data": [
-          "revenue_rub",
-          "expenses_rub",
-          "monthly_debt_payments_rub"
-        ]
+          "company.financials.revenue_rub",
+          "company.financials.expenses_rub",
+          "company.financials.monthly_debt_payments_rub"
+        ],
+        "factor_impacts": {
+          "factor_insufficient_data": -10,
+          "factor_expense_ratio": 0,
+          "factor_business_age": 0,
+          "factor_debt_load": 0
+        }
       }
     },
     {
       "id": "thinmargin-1",
       "scenario": "thin_margin",
       "input": {
-        "business_age_months": 40,
-        "revenue_rub": 30000000,
-        "expenses_rub": 29000000,
-        "net_profit_rub": 1000000,
-        "monthly_debt_payments_rub": 20000,
-        "requested_amount_rub": 500000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000010",
+        "application": {
+          "id": "thinmargin-1",
+          "number": "AC-000010",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 45840,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2023-06-12",
+          "business_age_months": 40,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 30000000,
+            "expenses_rub": 29000000,
+            "net_profit_rub": 1000000,
+            "monthly_debt_payments_rub": 20000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 30000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 20000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "high",
-        "reason_codes": [
-          "EXPENSE_RATIO_HIGH",
-          "DEBT_LOAD_HIGH"
-        ],
-        "missing_data": []
+        "score": 20,
+        "risk_grade": "E",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": -20,
+          "factor_debt_load": -20
+        }
       }
     },
     {
       "id": "thinmargin-2",
       "scenario": "thin_margin",
       "input": {
-        "business_age_months": 22,
-        "revenue_rub": 20000000,
-        "expenses_rub": 21000000,
-        "net_profit_rub": -1000000,
-        "monthly_debt_payments_rub": 50000,
-        "requested_amount_rub": 600000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000011",
+        "application": {
+          "id": "thinmargin-2",
+          "number": "AC-000011",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 600000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 55008,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2024-12-12",
+          "business_age_months": 22,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 20000000,
+            "expenses_rub": 21000000,
+            "net_profit_rub": -1000000,
+            "monthly_debt_payments_rub": 50000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 20000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 50000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "high",
-        "reason_codes": [
-          "EXPENSE_RATIO_HIGH",
-          "NO_PROFIT"
-        ],
-        "missing_data": []
+        "score": 0,
+        "risk_grade": "E",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 0,
+          "factor_expense_ratio": -20,
+          "factor_debt_load": -35
+        }
       }
     },
     {
       "id": "thinmargin-3",
       "scenario": "thin_margin",
       "input": {
-        "business_age_months": 52,
-        "revenue_rub": 50000000,
-        "expenses_rub": 43000000,
-        "net_profit_rub": 7000000,
-        "monthly_debt_payments_rub": 50000,
-        "requested_amount_rub": 1200000,
-        "term_months": 12
+        "request_id": "00000000-0000-4000-8000-000000000012",
+        "application": {
+          "id": "thinmargin-3",
+          "number": "AC-000012",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1200000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 110016,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2022-06-12",
+          "business_age_months": 52,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 50000000,
+            "expenses_rub": 43000000,
+            "net_profit_rub": 7000000,
+            "monthly_debt_payments_rub": 50000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 50000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 36,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 50000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
       },
       "expected": {
-        "risk_level": "medium",
-        "reason_codes": [
-          "EXPENSE_RATIO_MODERATE",
-          "DEBT_LOAD_LOW"
-        ],
-        "missing_data": []
+        "score": 75,
+        "risk_grade": "B",
+        "missing_data": [],
+        "factor_impacts": {
+          "factor_business_age": 10,
+          "factor_expense_ratio": -5,
+          "factor_debt_load": 20
+        }
       }
     }
   ]
