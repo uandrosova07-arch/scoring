@@ -1,10 +1,14 @@
 # scoring
 
 Python-сервис оценки кредитного риска. Часть проекта AlfaCredit: backend (C#) вызывает его по
-`http://scoring:8000/score`, получает уровень риска с объяснением и сам формирует кредитное решение.
+`POST http://scoring:8000/api/v1/score`, получает балл, грейд A–E и объяснение, а решение по заявке принимает сам.
+Если сервис недоступен, backend считает по встроенным правилам и помечает результат как `fallback-rules`.
 
-Расчёт построен на воспроизводимых правилах: [docs/calculation.md](docs/calculation.md).
-Реальные примеры запросов и ответов: [docs/score-examples.md](docs/score-examples.md).
+Контракт взят из репозитория backend: [`docs/scoring-contract.md`](https://github.com/GatheredSatyr53/probiinik/blob/ccr-ba8e7470-7yihoa/docs/scoring-contract.md).
+Он главный: при расхождении правим этот сервис, а не наоборот.
+
+Как считается оценка: [docs/calculation.md](docs/calculation.md).
+Реальные запросы и ответы: [docs/score-examples.md](docs/score-examples.md).
 
 ## Запуск
 
@@ -20,13 +24,23 @@ docker run --rm -p 8000:8000 scoring
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-uvicorn app.main:app --port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Проверка: `curl localhost:8000/health`. Swagger: http://localhost:8000/docs.
+Контейнер слушает `0.0.0.0:8000`, имя сервиса в общем compose: `scoring`.
 
-Настройка одна: `MODEL_VERSION` (по умолчанию `rules-0.1`), см. `.env.example`.
-Порт внутри контейнера 8000, имя сервиса в общем compose: `scoring`.
+Дымовая проверка запущенного сервиса (в том числе контейнера): `/health` и три примера в `/api/v1/score`
+с проверкой результата. Нужен только Python, зависимости ставить не нужно.
+
+```bash
+python scripts/smoke.py                      # http://localhost:8000
+python scripts/smoke.py http://scoring:8000  # любой другой адрес
+```
+
+Код выхода 0, если всё совпало с ожидаемым, иначе 1.
+
+Настройка одна: `MODEL_VERSION` (по умолчанию `rules-0.2`), см. `.env.example`.
 
 ## Тесты
 
@@ -34,46 +48,39 @@ uvicorn app.main:app --port 8000
 pytest -q
 ```
 
-Тесты проверяют: все примеры из `data/samples.json` дают ожидаемый исход; повторный запрос даёт тот же ответ;
-пропуски (`null`, отсутствие поля, `NaN`) дают `undetermined` и список `missing_data`; некорректные значения дают `422`;
-значения в причинах пересчитываются независимо.
+Тесты проверяют: все примеры из `data/samples.json` дают ожидаемый балл и грейд; повторный запрос даёт тот же ответ;
+форма ответа соответствует контракту (3–7 факторов по убыванию модуля вклада); балл равен 50 плюс сумма вкладов;
+пропуски дают грейд D и список `missing_data`; некорректные значения, `NaN` и `Infinity` дают `400`.
 
-## Контракт `POST /score`
+## Контракт
 
-Все поля необязательны на уровне формата: отсутствующее поле и `null` считаются пропуском.
-Деньги в рублях целыми числами, период в названии поля.
+`POST /api/v1/score`, JSON, `snake_case`, рубли целыми числами, пропуск = `null`. `NaN` и `Infinity` недопустимы.
+Сервис читает только нужные поля, остальное игнорирует, поэтому backend может расширять запрос.
 
-```json
-{
-  "business_age_months": 84,
-  "revenue_rub": 48000000,
-  "expenses_rub": 30000000,
-  "net_profit_rub": 18000000,
-  "monthly_debt_payments_rub": 100000,
-  "requested_amount_rub": 1500000,
-  "term_months": 12
-}
-```
+Используемые поля запроса:
 
-Ответ `200`:
+| Поле | Зачем |
+|---|---|
+| `request_id` | возвращается в ответе без изменений |
+| `application.amount_rub`, `application.term_months` | параметры заявки (обязательны) |
+| `application.estimated_monthly_payment_rub` | новый платёж, его считает backend; если нет, берётся сумма / срок |
+| `company.business_age_months` | возраст бизнеса |
+| `company.financials.revenue_rub`, `expenses_rub`, `net_profit_rub` | за 12 месяцев |
+| `company.financials.monthly_debt_payments_rub` | текущие платежи по кредитам за месяц |
+| `checks.*` | блоки внешних проверок; пока только сообщаем в `warnings`, если блок `null` |
 
-```json
-{
-  "risk_level": "low",
-  "reasons": [{"code": "EXPENSE_RATIO_OK", "text": "…", "value": 0.625}],
-  "missing_data": [],
-  "model_version": "rules-0.1"
-}
-```
+Ответ `200`: `request_id`, `model_version`, `score` (0..100), `risk_grade` (A..E), `probability_of_default`,
+`factors[]` (`code`, `title`, `impact`, `value`, `client_explanation`), `warnings[]`, а также `missing_data[]` (расширение контракта).
+Подробный пример: [docs/score-examples.md](docs/score-examples.md).
 
-`risk_level`: `low | medium | high | undetermined`. Лишние поля в запросе (например, `"credit_bureau": null`) игнорируются.
-Некорректные значения (отрицательная выручка, срок 0, строка вместо числа) дают `422` в формате ProblemDetails
-(`application/problem+json`) со списком `errors`, расчёт при этом не выполняется.
+Ошибка: `400` и `{"error": "validation", "details": {"поле": "описание"}}`.
+`POST /score` работает как короткий псевдоним того же адреса.
 
 ## Данные
 
-- `data/first_three.json`: три компании для бэкендера (устойчивые финансы, высокая нагрузка, недостающие сведения).
-- `data/samples.json`: 12 синтетических примеров, четыре сценария по три. `input` и `expected` лежат отдельно.
+- `data/first_three.json`: три компании для бэкендера (низкий риск, высокий риск, нехватка данных).
+- `data/samples.json`: 12 синтетических примеров, четыре сценария по три. `input` (запрос в формате контракта)
+  и `expected` лежат отдельно. `expected` посчитан независимым кодом, а не самим сервисом.
 
 ## Сборка и деплой
 
@@ -96,9 +103,11 @@ docker compose up -d --no-deps scoring
 
 ## Открытые вопросы
 
-- **Названия `business_age_months`, `requested_amount_rub`, `term_months`** предложены мной, бэкендер их не подтверждал.
-  Остальные поля взяты из его ответа.
-- **`risk_level`**: значения `low/medium/high/undetermined` предварительные. Нужно решить с backend, как они ложатся
-  на его грейды и что делать с `undetermined`.
-- **Пороги** не согласованы с продактом, это условия демонстрации.
-- Блоки внешних проверок (`credit_bureau` и другие) пока не используются и игнорируются.
+- **Баллы и пороги** предварительные, их нужно согласовать с продактом и бэкендером как условия демонстрации.
+- **Нехватка данных.** Контракт требует `score` и `risk_grade` всегда. Предложено: если нет выручки, расходов или платежей
+  по кредитам, возвращать `score` 40 и грейд D (ручное рассмотрение), а недостающее перечислять в `missing_data`.
+  Бэкендеру нужно подтвердить, что это его устраивает.
+- **`probability_of_default`** всегда `null`: правила не откалиброваны на дефолтах. Backend считает его сам по формуле.
+- **`missing_data`** не входит в контракт, это расширение. Backend может его игнорировать или использовать для запроса данных у клиента.
+- **Версия модели.** В примере контракта `lgbm-2026.10.21`, у нас пока `rules-0.2`: это правила, а не обученная модель.
+- Блоки внешних проверок (`checks`) в расчёте пока не используются: стоп-факторы по ним проверяет backend.
