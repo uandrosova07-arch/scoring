@@ -21,7 +21,7 @@ def post(payload: dict):
     return client.post(URL, json=payload)
 
 
-
+# ---- примеры ----
 
 def test_sample_count_and_scenarios():
     assert 8 <= len(SAMPLES) <= 12
@@ -46,7 +46,7 @@ def test_same_input_same_output(sample):
         assert post(sample["input"]).content == first
 
 
-
+# ---- соответствие контракту ----
 
 @pytest.mark.parametrize("sample", SAMPLES, ids=[s["id"] for s in SAMPLES])
 def test_response_shape_follows_contract(sample):
@@ -67,7 +67,7 @@ def test_response_shape_follows_contract(sample):
 @pytest.mark.parametrize("sample", [s for s in SAMPLES if not s["expected"]["missing_data"]],
                          ids=[s["id"] for s in SAMPLES if not s["expected"]["missing_data"]])
 def test_score_is_base_plus_factor_impacts(sample):
-
+    # Причины соответствуют выполненным правилам: балл = 50 + сумма вкладов (с ограничением 0..100).
     body = post(sample["input"]).json()
     assert body["score"] == max(0, min(100, 50 + sum(f["impact"] for f in body["factors"])))
 
@@ -82,7 +82,7 @@ def test_grade_table_matches_backend(score, grade):
 def test_factor_values_match_independent_calculation():
     body = post(stable()).json()
     by = {f["code"]: f for f in body["factors"]}
-    assert by["factor_expense_ratio"]["value"] == "63%"  
+    assert by["factor_expense_ratio"]["value"] == "63%"  # 30 000 000 / 48 000 000 = 0.625
     s = stable()
     load = (100_000 + s["application"]["estimated_monthly_payment_rub"]) / (18_000_000 / 12)
     assert by["factor_debt_load"]["value"] == f"{int(load * 100 + 0.5)}%"
@@ -93,20 +93,20 @@ def impact(payload: dict, code: str) -> int:
 
 
 def test_estimated_payment_from_backend_is_used():
-    
+    # Платёж, который прислал backend, важнее собственного упрощённого расчёта.
     big = stable()
-    big["application"]["estimated_monthly_payment_rub"] = 5_000_000  
+    big["application"]["estimated_monthly_payment_rub"] = 5_000_000  # против прибыли 1,5 млн в месяц
     assert impact(big, "factor_debt_load") == -20
     assert impact(stable(), "factor_debt_load") == 20
 
 
 def test_simple_split_when_estimated_payment_is_absent():
-    
+    # Нет платежа от backend: берётся сумма / срок. 18 000 000 / 12 = 1 500 000 в месяц, нагрузка выше 70%.
     s = stable()
     del s["application"]["estimated_monthly_payment_rub"]
     s["application"]["amount_rub"] = 18_000_000
     assert impact(s, "factor_debt_load") == -20
-    s["application"]["amount_rub"] = 1_200_000  
+    s["application"]["amount_rub"] = 1_200_000  # 100 000 в месяц
     assert impact(s, "factor_debt_load") == 20
 
 
@@ -131,7 +131,7 @@ def test_health_and_alias():
     assert client.post("/score", json=stable()).json() == post(stable()).json()
 
 
-
+# ---- пропуски ----
 
 def test_missing_financials_go_to_manual_review_grade_d():
     s = stable()
@@ -179,7 +179,7 @@ def test_unknown_fields_are_ignored():
     assert post(s).status_code == 200
 
 
-
+# ---- некорректные значения: 400 в формате контракта ----
 
 @pytest.mark.parametrize(
     "path, value, field",

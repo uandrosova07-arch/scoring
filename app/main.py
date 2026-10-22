@@ -15,6 +15,7 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
+    
     details: dict[str, str] = {}
     for e in exc.errors():
         field = ".".join(str(p) for p in e["loc"] if p != "body") or "body"

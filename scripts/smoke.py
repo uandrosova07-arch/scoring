@@ -2,8 +2,8 @@
 
     python scripts/smoke.py [адрес]        # по умолчанию http://localhost:8000
 
-Проверяет /health, затем отправляет в POST /api/v1/score три примера из data/first_three.json
-и сверяет балл, грейд и список недостающих данных с ожидаемым исходом.
+Проверяет /health, затем отправляет в POST /api/v1/score пять демонстрационных компаний из
+data/demo_companies.json и сверяет балл, грейд и список недостающих данных с ожидаемым исходом.
 Код выхода 0, если всё совпало, иначе 1. Только стандартная библиотека.
 """
 import json
@@ -13,7 +13,7 @@ import urllib.request
 from pathlib import Path
 
 BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000").rstrip("/")
-SAMPLES = Path(__file__).resolve().parent.parent / "data" / "first_three.json"
+SAMPLES = Path(__file__).resolve().parent.parent / "data" / "demo_companies.json"
 
 
 def call(path: str, payload: dict | None = None) -> tuple[int, dict]:
@@ -39,7 +39,7 @@ def main() -> int:
     print(f"{'OK  ' if ok else 'FAIL'}  GET /health -> {status} {body}")
     failed += not ok
 
-    for s in json.loads(SAMPLES.read_text(encoding="utf-8"))["samples"]:
+    for s in json.loads(SAMPLES.read_text(encoding="utf-8"))["companies"]:
         status, body = call("/api/v1/score", s["input"])
         exp = s["expected"]
         got = (body.get("score"), body.get("risk_grade"), body.get("missing_data"))

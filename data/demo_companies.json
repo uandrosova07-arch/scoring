@@ -1,0 +1,527 @@
+{
+  "meta": {
+    "status": "DRAFT: баллы и пороги не согласованы с продактом и бэкендером",
+    "contract": "POST /api/v1/score, docs/scoring-contract.md в репозитории backend",
+    "model_version": "rules-0.2",
+    "note": "Финансовые цифры синтетические, подобраны под профили seed-компаний backend. Замените на свои, если seed отличается. expected посчитан независимым кодом, а не самим сервисом."
+  },
+  "companies": [
+    {
+      "id": "demo-good",
+      "title": "ООО «Ромашка»: устойчивые финансы",
+      "backend_login": "client_good",
+      "note": "Ожидается автоодобрение: грейд A.",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "demo-good",
+          "number": "AC-000901",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 137520,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-10-12",
+          "business_age_months": 84,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 30000000,
+            "net_profit_rub": 18000000,
+            "monthly_debt_payments_rub": 100000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 48000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 4,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 100000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "score": 95,
+        "risk_grade": "A",
+        "missing_data": [],
+        "warnings": [],
+        "factors": [
+          {
+            "code": "factor_debt_load",
+            "impact": 20,
+            "value": "16%"
+          },
+          {
+            "code": "factor_expense_ratio",
+            "impact": 15,
+            "value": "63%"
+          },
+          {
+            "code": "factor_business_age",
+            "impact": 10,
+            "value": "84 мес."
+          }
+        ]
+      },
+      "csharp_fallback_reference": {
+        "source": "по описанию rules-v1 в docs/decision-logic.md, не по коду C#: бэкендер должен проверить",
+        "score": 100,
+        "risk_grade": "A",
+        "goes_to_manager_without_egrul_or_bureau": false
+      }
+    },
+    {
+      "id": "demo-medium",
+      "title": "ИП Кузнецов: заметная долговая нагрузка",
+      "backend_login": "client_medium",
+      "note": "Ожидается одобрение с изменёнными условиями: грейд C.",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000902",
+        "application": {
+          "id": "demo-medium",
+          "number": "AC-000902",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1200000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 110016,
+          "product": {
+            "code": "express",
+            "type": "Express",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 3000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "503212345678",
+          "legal_form": "Ip",
+          "okved": "47.11",
+          "region_code": "50",
+          "registered_at": "2023-06-12",
+          "business_age_months": 40,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 24000000,
+            "expenses_rub": 19200000,
+            "net_profit_rub": 4800000,
+            "monthly_debt_payments_rub": 100000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 30000,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 24000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 4,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 100000,
+            "max_overdue_days_24m": 20,
+            "overdue_count_24m": 1,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "score": 55,
+        "risk_grade": "C",
+        "missing_data": [],
+        "warnings": [],
+        "factors": [
+          {
+            "code": "factor_business_age",
+            "impact": 10,
+            "value": "40 мес."
+          },
+          {
+            "code": "factor_expense_ratio",
+            "impact": -5,
+            "value": "80%"
+          },
+          {
+            "code": "factor_debt_load",
+            "impact": 0,
+            "value": "53%"
+          }
+        ]
+      },
+      "csharp_fallback_reference": {
+        "source": "по описанию rules-v1 в docs/decision-logic.md, не по коду C#: бэкендер должен проверить",
+        "score": 55,
+        "risk_grade": "C",
+        "goes_to_manager_without_egrul_or_bureau": false
+      }
+    },
+    {
+      "id": "demo-manual",
+      "title": "ООО «Вектор»: крупная сумма",
+      "backend_login": "client_manual",
+      "note": "Грейд B, но сумма выше лимита автоодобрения продукта (5 млн), поэтому ручное рассмотрение. Это решает backend, не скоринг.",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000903",
+        "application": {
+          "id": "demo-manual",
+          "number": "AC-000903",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 20000000,
+          "term_months": 24,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 998482,
+          "product": {
+            "code": "credit-line",
+            "type": "CreditLine",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7812345678",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "78",
+          "registered_at": "2016-10-12",
+          "business_age_months": 120,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 180000000,
+            "expenses_rub": 117000000,
+            "net_profit_rub": 63000000,
+            "monthly_debt_payments_rub": 1900000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 30000,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 180000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 4,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 1900000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "score": 75,
+        "risk_grade": "B",
+        "missing_data": [],
+        "warnings": [],
+        "factors": [
+          {
+            "code": "factor_expense_ratio",
+            "impact": 15,
+            "value": "65%"
+          },
+          {
+            "code": "factor_business_age",
+            "impact": 10,
+            "value": "120 мес."
+          },
+          {
+            "code": "factor_debt_load",
+            "impact": 0,
+            "value": "55%"
+          }
+        ]
+      },
+      "csharp_fallback_reference": {
+        "source": "по описанию rules-v1 в docs/decision-logic.md, не по коду C#: бэкендер должен проверить",
+        "score": 75,
+        "risk_grade": "B",
+        "goes_to_manager_without_egrul_or_bureau": false
+      }
+    },
+    {
+      "id": "demo-bad",
+      "title": "ООО «Закат»: просрочки и налоговый долг",
+      "backend_login": "client_bad",
+      "note": "Ожидается отказ: грейд E. У backend сработают и стоп-факторы по БКИ и налогам.",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000904",
+        "application": {
+          "id": "demo-bad",
+          "number": "AC-000904",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 91680,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "5401234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "54",
+          "registered_at": "2020-10-12",
+          "business_age_months": 72,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 30000000,
+            "expenses_rub": 28500000,
+            "net_profit_rub": 1500000,
+            "monthly_debt_payments_rub": 80000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 600000,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 30000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 4,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 80000,
+            "max_overdue_days_24m": 120,
+            "overdue_count_24m": 3,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 2,
+            "open_amount_rub": 400000
+          }
+        }
+      },
+      "expected": {
+        "score": 20,
+        "risk_grade": "E",
+        "missing_data": [],
+        "warnings": [],
+        "factors": [
+          {
+            "code": "factor_expense_ratio",
+            "impact": -20,
+            "value": "95%"
+          },
+          {
+            "code": "factor_debt_load",
+            "impact": -20,
+            "value": "137%"
+          },
+          {
+            "code": "factor_business_age",
+            "impact": 10,
+            "value": "72 мес."
+          }
+        ]
+      },
+      "csharp_fallback_reference": {
+        "source": "по описанию rules-v1 в docs/decision-logic.md, не по коду C#: бэкендер должен проверить",
+        "score": 0,
+        "risk_grade": "E",
+        "goes_to_manager_without_egrul_or_bureau": false
+      }
+    },
+    {
+      "id": "demo-incomplete",
+      "title": "ООО «Север»: не хватает данных",
+      "backend_login": null,
+      "note": "Нет расходов, платежей по кредитам и ответа БКИ. Скоринг даёт D (ручное рассмотрение). Компании нет в seed backend.",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000905",
+        "application": {
+          "id": "demo-incomplete",
+          "number": "AC-000905",
+          "created_at": "2026-10-20T13:17:20Z",
+          "amount_rub": 1000000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 91680,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 18.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7707654321",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2024-10-12",
+          "business_age_months": 24,
+          "tax_regime": "UsnIncome",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 18000000,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": null
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 18000000
+          },
+          "credit_bureau": null,
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "score": 40,
+        "risk_grade": "D",
+        "missing_data": [
+          "company.financials.expenses_rub",
+          "company.financials.monthly_debt_payments_rub"
+        ],
+        "warnings": [
+          "insufficient_data",
+          "credit_bureau_missing"
+        ],
+        "factors": [
+          {
+            "code": "factor_insufficient_data",
+            "impact": -10,
+            "value": "не хватает: expenses_rub, monthly_debt_payments_rub"
+          },
+          {
+            "code": "factor_expense_ratio",
+            "impact": 0,
+            "value": "нет данных"
+          },
+          {
+            "code": "factor_debt_load",
+            "impact": 0,
+            "value": "нет данных"
+          },
+          {
+            "code": "factor_business_age",
+            "impact": 0,
+            "value": "24 мес."
+          }
+        ]
+      },
+      "csharp_fallback_reference": {
+        "source": "по описанию rules-v1 в docs/decision-logic.md, не по коду C#: бэкендер должен проверить",
+        "score": 70,
+        "risk_grade": "B",
+        "goes_to_manager_without_egrul_or_bureau": true
+      }
+    }
+  ]
+}

@@ -4,39 +4,38 @@
 Грейды совпадают с таблицей backend (A 80..100, B 65..79, C 50..64, D 35..49, E 0..34).
 Пороги и баллы предварительные: их нужно согласовать с продактом и бэкендером как условия демонстрации.
 """
-import os
-
 from app.schemas import Factor, Financials, ScoreRequest, ScoreResponse
 
-MODEL_VERSION = os.getenv("MODEL_VERSION", "rules-0.2")
+
+MODEL_VERSION = "rules-0.2"
 
 BASE_SCORE = 50
 GRADES = ((80, "A"), (65, "B"), (50, "C"), (35, "D"), (0, "E"))
 
-# Правило 1. Достаточность сведений. Порядок фиксирован: от него зависит порядок в missing_data.
+
 REQUIRED_FINANCIALS = ("revenue_rub", "expenses_rub", "monthly_debt_payments_rub")
-# При нехватке данных оценка не строится по неполным цифрам: заявка уходит менеджеру (грейд D).
+
 INSUFFICIENT_SCORE = 40
 
-# Правило 2. Доля расходов в выручке: (верхняя граница, код, баллы).
+
 EXPENSE_RATIO_OK_BELOW, EXPENSE_RATIO_MODERATE_UP_TO = 0.70, 0.90
 EXPENSE_POINTS = {"ok": 15, "moderate": -5, "high": -20}
 
-# Правило 3. Кредитная нагрузка: (текущие платежи + новый платёж) / месячная чистая прибыль.
+
 DEBT_LOAD_LOW_BELOW, DEBT_LOAD_MEDIUM_UP_TO = 0.30, 0.70
 DEBT_POINTS = {"low": 20, "medium": 0, "high": -20}
 NO_PROFIT_POINTS = -35
 
-# Правило 4. Возраст бизнеса (как в таблице backend).
-AGE_POINTS = ((6, -20), (12, -10), (36 + 1, 0))  # <6 мес., 6..11, 12..36
-AGE_POINTS_OLDER = 10  # старше 36 месяцев
+
+AGE_POINTS = ((6, -20), (12, -10), (36 + 1, 0))  
+AGE_POINTS_OLDER = 10  
 
 NO_DATA = "нет данных"
 _ORDER = {"factor_expense_ratio": 0, "factor_debt_load": 1, "factor_business_age": 2, "factor_insufficient_data": 3}
 
 
 def _pct(x: float) -> str:
-    return f"{int(x * 100 + 0.5)}%"  # округление половины вверх, без банковского
+    return f"{int(x * 100 + 0.5)}%"  
 
 
 def grade_for(score: int) -> str:
@@ -144,7 +143,7 @@ def score(req: ScoreRequest) -> ScoreResponse:
         factors.append(_debt_factor(req, f))
         total = max(0, min(100, BASE_SCORE + sum(x.impact for x in factors)))
 
-    # По убыванию модуля вклада; при равенстве порядок фиксирован, чтобы ответ был воспроизводимым.
+    
     factors.sort(key=lambda x: (-abs(x.impact), _ORDER[x.code]))
     return ScoreResponse(
         request_id=req.request_id,

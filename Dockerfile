@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 
-
+# Не root.
 RUN useradd --system --uid 10001 scoring
 USER scoring
 
