@@ -1,0 +1,70 @@
+{
+  "request_id": "00000000-0000-4000-8000-000000000903",
+  "application": {
+    "id": "00000000-0000-4000-9000-000000000903",
+    "number": "AC-000903",
+    "created_at": "2026-10-23T09:00:00Z",
+    "amount_rub": 8000000,
+    "term_months": 24,
+    "purpose": "WorkingCapital",
+    "estimated_monthly_payment_rub": 405215,
+    "product": {
+      "code": "working-capital",
+      "type": "WorkingCapital",
+      "base_rate_percent": 19.5,
+      "requires_collateral": false,
+      "auto_approval_limit_rub": 5000000
+    },
+    "collateral_offered": false
+  },
+  "company": {
+    "inn": "7812345678",
+    "legal_form": "Ooo",
+    "okved": "25.11",
+    "region_code": "78",
+    "registered_at": "2016-09-20",
+    "business_age_months": 121,
+    "tax_regime": "Osno",
+    "employees_count": 85,
+    "financials": {
+      "period_months": 12,
+      "revenue_rub": 180000000,
+      "expenses_rub": 160000000,
+      "net_profit_rub": 16000000,
+      "monthly_debt_payments_rub": 1200000
+    },
+    "history": {
+      "previous_applications": 0,
+      "previous_rejections": 0,
+      "previous_loans_disbursed": 0
+    }
+  },
+  "checks": {
+    "egrul": {
+      "status": "Active",
+      "head_disqualified": false,
+      "mass_address": false,
+      "registered_at": "2016-09-20",
+      "okved": "25.11"
+    },
+    "fns": {
+      "tax_debt_rub": 0,
+      "has_blocked_accounts": false,
+      "reported_revenue_rub": 176000000
+    },
+    "credit_bureau": {
+      "credit_history_months": 96,
+      "active_loans": 3,
+      "closed_loans": 5,
+      "total_debt_rub": 40000000,
+      "monthly_payments_rub": 1200000,
+      "max_overdue_days_24m": 0,
+      "overdue_count_24m": 0,
+      "has_write_offs": false
+    },
+    "fssp": {
+      "open_proceedings": 0,
+      "open_amount_rub": 0
+    }
+  }
+}

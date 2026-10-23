@@ -23,7 +23,6 @@ async def validation_error_handler(_: Request, exc: RequestValidationError) -> J
     return JSONResponse(status_code=400, content={"error": "validation", "details": details})
 
 
-
 @app.post("/score", response_model=ScoreResponse, include_in_schema=False)
 @app.post("/api/v1/score", response_model=ScoreResponse)
 def post_score(req: ScoreRequest) -> ScoreResponse:

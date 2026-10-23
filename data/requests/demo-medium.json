@@ -1,0 +1,70 @@
+{
+  "request_id": "00000000-0000-4000-8000-000000000902",
+  "application": {
+    "id": "00000000-0000-4000-9000-000000000902",
+    "number": "AC-000902",
+    "created_at": "2026-10-23T09:00:00Z",
+    "amount_rub": 3000000,
+    "term_months": 24,
+    "purpose": "WorkingCapital",
+    "estimated_monthly_payment_rub": 151956,
+    "product": {
+      "code": "working-capital",
+      "type": "WorkingCapital",
+      "base_rate_percent": 19.5,
+      "requires_collateral": false,
+      "auto_approval_limit_rub": 5000000
+    },
+    "collateral_offered": false
+  },
+  "company": {
+    "inn": "503212345678",
+    "legal_form": "Ip",
+    "okved": "49.41",
+    "region_code": "50",
+    "registered_at": "2023-06-01",
+    "business_age_months": 40,
+    "tax_regime": "UsnIncome",
+    "employees_count": 5,
+    "financials": {
+      "period_months": 12,
+      "revenue_rub": 9600000,
+      "expenses_rub": 4200000,
+      "net_profit_rub": 4800000,
+      "monthly_debt_payments_rub": 40000
+    },
+    "history": {
+      "previous_applications": 0,
+      "previous_rejections": 0,
+      "previous_loans_disbursed": 0
+    }
+  },
+  "checks": {
+    "egrul": {
+      "status": "Active",
+      "head_disqualified": false,
+      "mass_address": false,
+      "registered_at": "2023-06-01",
+      "okved": "49.41"
+    },
+    "fns": {
+      "tax_debt_rub": 12000,
+      "has_blocked_accounts": false,
+      "reported_revenue_rub": 9100000
+    },
+    "credit_bureau": {
+      "credit_history_months": 30,
+      "active_loans": 1,
+      "closed_loans": 1,
+      "total_debt_rub": 900000,
+      "monthly_payments_rub": 40000,
+      "max_overdue_days_24m": 25,
+      "overdue_count_24m": 1,
+      "has_write_offs": false
+    },
+    "fssp": {
+      "open_proceedings": 0,
+      "open_amount_rub": 0
+    }
+  }
+}

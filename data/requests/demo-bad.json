@@ -1,0 +1,70 @@
+{
+  "request_id": "00000000-0000-4000-8000-000000000904",
+  "application": {
+    "id": "00000000-0000-4000-9000-000000000904",
+    "number": "AC-000904",
+    "created_at": "2026-10-23T09:00:00Z",
+    "amount_rub": 500000,
+    "term_months": 6,
+    "purpose": "WorkingCapital",
+    "estimated_monthly_payment_rub": 89012,
+    "product": {
+      "code": "express",
+      "type": "Express",
+      "base_rate_percent": 23.0,
+      "requires_collateral": false,
+      "auto_approval_limit_rub": 3000000
+    },
+    "collateral_offered": false
+  },
+  "company": {
+    "inn": "5401234567",
+    "legal_form": "Ooo",
+    "okved": "56.10",
+    "region_code": "54",
+    "registered_at": "2020-02-14",
+    "business_age_months": 80,
+    "tax_regime": "UsnIncomeExpenses",
+    "employees_count": 12,
+    "financials": {
+      "period_months": 12,
+      "revenue_rub": 14000000,
+      "expenses_rub": 13900000,
+      "net_profit_rub": 100000,
+      "monthly_debt_payments_rub": 600000
+    },
+    "history": {
+      "previous_applications": 0,
+      "previous_rejections": 0,
+      "previous_loans_disbursed": 0
+    }
+  },
+  "checks": {
+    "egrul": {
+      "status": "Active",
+      "head_disqualified": false,
+      "mass_address": true,
+      "registered_at": "2020-02-14",
+      "okved": "56.10"
+    },
+    "fns": {
+      "tax_debt_rub": 700000,
+      "has_blocked_accounts": true,
+      "reported_revenue_rub": 13200000
+    },
+    "credit_bureau": {
+      "credit_history_months": 48,
+      "active_loans": 4,
+      "closed_loans": 1,
+      "total_debt_rub": 9000000,
+      "monthly_payments_rub": 600000,
+      "max_overdue_days_24m": 95,
+      "overdue_count_24m": 3,
+      "has_write_offs": false
+    },
+    "fssp": {
+      "open_proceedings": 2,
+      "open_amount_rub": 1400000
+    }
+  }
+}

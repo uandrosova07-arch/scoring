@@ -13,14 +13,14 @@ Grade = Literal["A", "B", "C", "D", "E"]
 
 
 class _Input(BaseModel):
-   
+    
     model_config = ConfigDict(extra="ignore", strict=True)
 
 
 class Application(_Input):
     amount_rub: float = Field(gt=0, allow_inf_nan=False)
     term_months: int = Field(ge=1, le=600)
-    
+   
     estimated_monthly_payment_rub: float | None = Field(default=None, ge=0, allow_inf_nan=False)
 
 
@@ -37,7 +37,6 @@ class Company(_Input):
 
 
 class Checks(_Input):
-
     egrul: dict | None = None
     fns: dict | None = None
     credit_bureau: dict | None = None
@@ -54,7 +53,7 @@ class ScoreRequest(_Input):
 class Factor(BaseModel):
     code: str
     title: str
-    impact: int  
+    impact: int  # баллы со знаком
     value: str
     client_explanation: str
 
@@ -65,6 +64,7 @@ class ScoreResponse(BaseModel):
     score: int  
     risk_grade: Grade
     probability_of_default: float | None = None  
-    factors: list[Factor]  
+    factors: list[Factor] 
     warnings: list[str]
+    
     missing_data: list[str]

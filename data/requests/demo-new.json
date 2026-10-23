@@ -1,0 +1,70 @@
+{
+  "request_id": "00000000-0000-4000-8000-000000000905",
+  "application": {
+    "id": "00000000-0000-4000-9000-000000000905",
+    "number": "AC-000905",
+    "created_at": "2026-10-23T09:00:00Z",
+    "amount_rub": 300000,
+    "term_months": 12,
+    "purpose": "WorkingCapital",
+    "estimated_monthly_payment_rub": 28223,
+    "product": {
+      "code": "express",
+      "type": "Express",
+      "base_rate_percent": 23.0,
+      "requires_collateral": false,
+      "auto_approval_limit_rub": 3000000
+    },
+    "collateral_offered": false
+  },
+  "company": {
+    "inn": "772812345678",
+    "legal_form": "Ip",
+    "okved": "96.02",
+    "region_code": "77",
+    "registered_at": "2026-06-15",
+    "business_age_months": 4,
+    "tax_regime": "Patent",
+    "employees_count": 2,
+    "financials": {
+      "period_months": 12,
+      "revenue_rub": 1200000,
+      "expenses_rub": null,
+      "net_profit_rub": null,
+      "monthly_debt_payments_rub": 0
+    },
+    "history": {
+      "previous_applications": 0,
+      "previous_rejections": 0,
+      "previous_loans_disbursed": 0
+    }
+  },
+  "checks": {
+    "egrul": {
+      "status": "Active",
+      "head_disqualified": false,
+      "mass_address": false,
+      "registered_at": "2026-06-15",
+      "okved": "96.02"
+    },
+    "fns": {
+      "tax_debt_rub": 0,
+      "has_blocked_accounts": false,
+      "reported_revenue_rub": null
+    },
+    "credit_bureau": {
+      "credit_history_months": 0,
+      "active_loans": 0,
+      "closed_loans": 0,
+      "total_debt_rub": 0,
+      "monthly_payments_rub": 0,
+      "max_overdue_days_24m": 0,
+      "overdue_count_24m": 0,
+      "has_write_offs": false
+    },
+    "fssp": {
+      "open_proceedings": 0,
+      "open_amount_rub": 0
+    }
+  }
+}
