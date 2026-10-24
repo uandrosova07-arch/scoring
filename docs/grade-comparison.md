@@ -1,6 +1,7 @@
 # Python и резервные C#-правила: согласование rules-0.3
 
-Статус: **сервис scoring считает по `rules-0.3`; правки для C# подготовлены** ([backend/README.md](backend/README.md)).
+Статус: **сервис scoring и резервные правила backend считают по `rules-0.3`** (правки в C# внесены, [backend/README.md](backend/README.md)).
+Проверка в полном процессе на стенде: [stand-checks.md](stand-checks.md).
 За основу взяты резервные правила backend `rules-v1`, которые бэкендер подтвердил тестами на данных seed.
 Спецификация: [calculation.md](calculation.md).
 

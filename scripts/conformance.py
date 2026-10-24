@@ -24,6 +24,8 @@ import demo_comparison as dc  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 FILE = ROOT / "data" / "conformance" / "rules-0.3.json"
+BANDS_FILE = ROOT / "data" / "conformance" / "affordability-bands-rules-0.3.json"
+LEVEL_BY_IMPACT = {10: "Comfortable", 0: "Moderate", -10: "Elevated", -25: "High"}
 
 
 def _demo_requests() -> dict[str, dict]:
@@ -170,21 +172,63 @@ def build_all() -> dict:
     }
 
 
+def build_bands(data: dict) -> dict:
+    """Эталон уровней нагрузки для предварительного подбора: те же входы, уровень по вкладу debt_load копии C# rules-0.3.
+
+    Нет ни чистой прибыли, ни расходов: InsufficientData и null во всех числах (оценка в этом случае берёт 10 % выручки,
+    preview нет). Иначе прибыль = чистая прибыль или выручка − расходы; прибыль <= 0: High, debt_load = null.
+    """
+    from decimal import Decimal
+    rows = []
+    for c in data["cases"]:
+        a, fin = c["input"]["application"], c["input"]["company"]["financials"]
+        net, rev, exp = fin["net_profit_rub"], fin["revenue_rub"], fin["expenses_rub"]
+        payments = fin["monthly_debt_payments_rub"] + a["estimated_monthly_payment_rub"]
+        row = {"id": c["id"], "revenue_rub": rev, "expenses_rub": exp, "net_profit_rub": net,
+               "monthly_debt_payments_rub": fin["monthly_debt_payments_rub"], "estimated_monthly_payment_rub": a["estimated_monthly_payment_rub"]}
+        if net is None and exp is None:
+            row["expected"] = {"level": "InsufficientData", "debt_load": None, "monthly_profit_rub": None,
+                               "monthly_payments_rub": None, "profit_basis": None}
+        else:
+            profit = Decimal(net) if net is not None else Decimal(rev) - Decimal(exp)
+            impact = next(f["impact"] for f in c["expected"]["factors"] if f["code"] == "debt_load")
+            row["expected"] = {
+                "level": LEVEL_BY_IMPACT[impact],
+                "debt_load": None if profit <= 0 else float(round(Decimal(payments) * 12 / profit, 4)),
+                "monthly_profit_rub": float(round(profit / 12, 2)),
+                "monthly_payments_rub": payments,
+                "profit_basis": "net_profit" if net is not None else "revenue_minus_expenses",
+            }
+        rows.append(row)
+    return {
+        "meta": {"model_version": br.AGREED_MODEL_VERSION,
+                 "bands": "debt_load < 0.3 Comfortable; 0.3 <= x < 0.5 Moderate; 0.5 <= x < 0.7 Elevated; x >= 0.7 или прибыль <= 0 High",
+                 "formula": "debt_load = (monthly_debt_payments_rub + estimated_monthly_payment_rub) * 12 / годовая прибыль; "
+                            "прибыль = net_profit_rub, иначе revenue_rub - expenses_rub, иначе InsufficientData",
+                 "note": "Входы из data/conformance/rules-0.3.json. Уровень по вкладу debt_load копии C# rules-0.3: +10, 0, −10, −25. "
+                         "Собрано scripts/conformance.py build."},
+        "cases": rows,
+    }
+
+
 def _dump(obj) -> str:
     return json.dumps(br.to_json_value(obj), ensure_ascii=False, indent=2) + "\n"
 
 
 def main(cmd: str) -> int:
     data = build_all()
+    bands = build_bands(data)
     if cmd == "build":
         FILE.parent.mkdir(exist_ok=True)
         FILE.write_text(_dump(data), encoding="utf-8")
-        print(f"записано: {FILE.relative_to(ROOT)}, случаев: {len(data['cases'])}")
+        BANDS_FILE.write_text(_dump(bands), encoding="utf-8")
+        print(f"записано: {FILE.relative_to(ROOT)} ({len(data['cases'])} случаев), {BANDS_FILE.relative_to(ROOT)}")
         return 0
     if cmd == "check":
         same = FILE.exists() and FILE.read_text(encoding="utf-8") == _dump(data)
-        print("эталон совпадает с пересборкой" if same else f"{FILE.relative_to(ROOT)} отличается от пересборки")
-        return 0 if same else 1
+        same_bands = BANDS_FILE.exists() and BANDS_FILE.read_text(encoding="utf-8") == _dump(bands)
+        print("эталоны совпадают с пересборкой" if same and same_bands else "эталон отличается от пересборки")
+        return 0 if same and same_bands else 1
     if cmd == "diff":
         for c in data["cases"]:
             e, v1 = c["expected"], c["current_csharp_rules_v1"]

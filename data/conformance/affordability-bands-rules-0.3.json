@@ -1,0 +1,955 @@
+{
+  "meta": {
+    "model_version": "rules-0.3",
+    "bands": "debt_load < 0.3 Comfortable; 0.3 <= x < 0.5 Moderate; 0.5 <= x < 0.7 Elevated; x >= 0.7 или прибыль <= 0 High",
+    "formula": "debt_load = (monthly_debt_payments_rub + estimated_monthly_payment_rub) * 12 / годовая прибыль; прибыль = net_profit_rub, иначе revenue_rub - expenses_rub, иначе InsufficientData",
+    "note": "Входы из data/conformance/rules-0.3.json. Уровень по вкладу debt_load копии C# rules-0.3: +10, 0, −10, −25. Собрано scripts/conformance.py build."
+  },
+  "cases": [
+    {
+      "id": "demo-good",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "demo-medium",
+      "revenue_rub": 9600000,
+      "expenses_rub": 4200000,
+      "net_profit_rub": 4800000,
+      "monthly_debt_payments_rub": 40000,
+      "estimated_monthly_payment_rub": 151956,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.4799,
+        "monthly_profit_rub": 400000.0,
+        "monthly_payments_rub": 191956,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "demo-manual",
+      "revenue_rub": 180000000,
+      "expenses_rub": 160000000,
+      "net_profit_rub": 16000000,
+      "monthly_debt_payments_rub": 1200000,
+      "estimated_monthly_payment_rub": 405215,
+      "expected": {
+        "level": "High",
+        "debt_load": 1.2039,
+        "monthly_profit_rub": 1333333.33,
+        "monthly_payments_rub": 1605215,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "demo-bad",
+      "revenue_rub": 14000000,
+      "expenses_rub": 13900000,
+      "net_profit_rub": 100000,
+      "monthly_debt_payments_rub": 600000,
+      "estimated_monthly_payment_rub": 89012,
+      "expected": {
+        "level": "High",
+        "debt_load": 82.6814,
+        "monthly_profit_rub": 8333.33,
+        "monthly_payments_rub": 689012,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "demo-new",
+      "revenue_rub": 1200000,
+      "expenses_rub": null,
+      "net_profit_rub": null,
+      "monthly_debt_payments_rub": 0,
+      "estimated_monthly_payment_rub": 28223,
+      "expected": {
+        "level": "InsufficientData",
+        "debt_load": null,
+        "monthly_profit_rub": null,
+        "monthly_payments_rub": null,
+        "profit_basis": null
+      }
+    },
+    {
+      "id": "missing-net-profit",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": null,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "revenue_minus_expenses"
+      }
+    },
+    {
+      "id": "missing-net-profit-and-expenses",
+      "revenue_rub": 48000000,
+      "expenses_rub": null,
+      "net_profit_rub": null,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "InsufficientData",
+        "debt_load": null,
+        "monthly_profit_rub": null,
+        "monthly_payments_rub": null,
+        "profit_basis": null
+      }
+    },
+    {
+      "id": "missing-expenses",
+      "revenue_rub": 48000000,
+      "expenses_rub": null,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-bureau",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-fns",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-fssp",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-egrul",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-fns-revenue",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "missing-all-checks",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-5",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-6",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-11",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-12",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-35",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "age-36",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-6000000",
+      "revenue_rub": 6000000,
+      "expenses_rub": 5100000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-5999999",
+      "revenue_rub": 5999999,
+      "expenses_rub": 5099999,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-3000000",
+      "revenue_rub": 3000000,
+      "expenses_rub": 2550000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-2999999",
+      "revenue_rub": 2999999,
+      "expenses_rub": 2549999,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-1500000",
+      "revenue_rub": 1500000,
+      "expenses_rub": 1275000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "revenue-ratio-1499999",
+      "revenue_rub": 1499999,
+      "expenses_rub": 1274999,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "expense-ratio-43200000",
+      "revenue_rub": 48000000,
+      "expenses_rub": 43200000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "expense-ratio-43200001",
+      "revenue_rub": 48000000,
+      "expenses_rub": 43200001,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "expense-ratio-0",
+      "revenue_rub": 48000000,
+      "expenses_rub": 0,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-41406",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 41406,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Comfortable",
+        "debt_load": 0.3,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 179999,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-41407",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 41407,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.3,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 180000,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-161406",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 161406,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.5,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 299999,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-161407",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 161407,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Elevated",
+        "debt_load": 0.5,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 300000,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-281406",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 281406,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Elevated",
+        "debt_load": 0.7,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 419999,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-281407",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 281407,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "High",
+        "debt_load": 0.7,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 420000,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "debt-load-0.3-profit-not-multiple-of-12",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 8000000,
+      "monthly_debt_payments_rub": 61407,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.3,
+        "monthly_profit_rub": 666666.67,
+        "monthly_payments_rub": 200000,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "profit-zero",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 0,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "High",
+        "debt_load": null,
+        "monthly_profit_rub": 0.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "profit-negative",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": -1000000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "High",
+        "debt_load": null,
+        "monthly_profit_rub": -83333.33,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "profit-tiny",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 100000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "High",
+        "debt_load": 34.6312,
+        "monthly_profit_rub": 8333.33,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "profit-derived-negative",
+      "revenue_rub": 48000000,
+      "expenses_rub": 50000000,
+      "net_profit_rub": null,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "High",
+        "debt_load": null,
+        "monthly_profit_rub": -166666.67,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "revenue_minus_expenses"
+      }
+    },
+    {
+      "id": "overdue-1",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "overdue-30",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "overdue-31",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "overdue-90",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "overdue-91",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "write-offs",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "no-credit-history",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "history-only-active-loan",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "tax-debt-1",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "tax-debt-49999",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "tax-debt-50000",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "tax-blocked-no-debt",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "tax-blocked-with-debt",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "fssp-one",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "collateral-clamp-100",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-80",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-75",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-65",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-60",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-50",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-45",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-35",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    },
+    {
+      "id": "grade-score-30",
+      "revenue_rub": 48000000,
+      "expenses_rub": 40800000,
+      "net_profit_rub": 7200000,
+      "monthly_debt_payments_rub": 150000,
+      "estimated_monthly_payment_rub": 138593,
+      "expected": {
+        "level": "Moderate",
+        "debt_load": 0.481,
+        "monthly_profit_rub": 600000.0,
+        "monthly_payments_rub": 288593,
+        "profit_basis": "net_profit"
+      }
+    }
+  ]
+}

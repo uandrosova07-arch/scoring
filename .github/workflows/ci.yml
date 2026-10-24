@@ -43,6 +43,10 @@ jobs:
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          # Версия правил из кода: образ получает тег rules-X.Y, его и ставим в compose после согласованного изменения правил.
+          RULES=$(sed -n 's/^MODEL_VERSION = "\(.*\)"$/\1/p' app/rules.py)
+          test -n "$RULES"
+          echo "rules=${RULES}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -58,6 +62,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.image }}:${{ github.sha }}
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.rules }}
             ${{ steps.meta.outputs.image }}:latest
 
       # Передаём процессу деплоя из infra название компонента и версию образа.

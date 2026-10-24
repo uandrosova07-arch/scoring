@@ -11,7 +11,8 @@ Python-сервис оценки кредитного риска. Часть п�
 
 Как считается оценка: [docs/calculation.md](docs/calculation.md).
 Реальные запросы и ответы: [docs/score-examples.md](docs/score-examples.md).
-Согласование с резервными C#-правилами backend и результаты сверки: [docs/grade-comparison.md](docs/grade-comparison.md); что сделать в backend: [docs/backend/README.md](docs/backend/README.md).
+Согласование с резервными C#-правилами backend и результаты сверки: [docs/grade-comparison.md](docs/grade-comparison.md); что внесено в backend: [docs/backend/README.md](docs/backend/README.md).
+Подсказка для формы заявки (не решение): [docs/preview.md](docs/preview.md). Сквозные проверки стенда: [docs/stand-checks.md](docs/stand-checks.md).
 
 ## Запуск
 
@@ -48,25 +49,21 @@ python scripts/smoke.py http://scoring:8000  # любой другой адре�
 
 ## Проверка в общем стенде backend
 
-Общий `docker-compose.yml` backend поднимает свою заглушку скоринга. Чтобы backend ходил в этот сервис, рядом с ним
-кладётся override `docs/backend/compose.scoring.yml` (репозитории `probiinik` и `scoring` лежат в одной папке):
+Правила `rules-0.3` перенесены в C# (`RuleBasedScoringService`), и заглушка scoring в общем compose backend заменена этим сервисом,
+поэтому override для compose больше не нужен. Полный процесс (заявка → решение → предложение → договор → подписание → выдача)
+проверяется отдельным тестовым стендом, рабочий стенд и его база не сбрасываются:
 
 ```bash
-cd probiinik
-cp ../scoring/docs/backend/compose.scoring.yml .
-docker compose down -v                                             # чистая база и seed
-docker compose -f docker-compose.yml -f compose.scoring.yml up --build -d
-curl localhost:8000/health                                         # model_version: rules-0.3
-cd ../scoring
-python scripts/smoke.py                                            # сервис отвечает как ожидается
-python scripts/e2e_backend.py                                      # демо-заявки через API backend
+cd scoring
+BACKEND_DIR=../probiinik scripts/run_stand_checks.sh   # проект alfacredit-e2e: своя БД и порты 18080 / 18000 / 15432
 ```
 
-`scripts/e2e_backend.py` подаёт демо-заявки от имени клиентов, ждёт решения и по карточке менеджера сверяет балл, грейд и
-решение со столбцом Python или C# из `data/demo_companies.json` (столбец выбирается по `scoring.source` и `modelVersion`).
-Откат на резервные правила: `docker compose stop scoring`, снова `e2e_backend.py` (ожидается `RulesFallback`), затем
-`docker compose start scoring`. Только встроенные правила:
-`SCORING_MODE=Rules docker compose -f docker-compose.yml -f compose.scoring.yml up -d api`.
+Скрипт прогоняет `scripts/e2e_backend.py` в режимах External (отвечает scoring) и RulesFallback (scoring остановлен), складывает
+отчёты, входные данные и версии образов в `e2e-results/<время>/` и в конце удаляет только том тестового проекта.
+Сценарии, ожидаемые результаты и ограничения: [docs/stand-checks.md](docs/stand-checks.md).
+
+Не используйте `docker compose down -v` в рабочем проекте `alfacredit` для проверок: это удаляет рабочую базу.
+`docs/backend/compose.scoring.yml` остался для старых версий backend, где в compose ещё заглушка (`E2E_COMPOSE_OVERRIDE`).
 
 ## Тесты
 
@@ -80,7 +77,11 @@ pytest -q
 - примеры из `data/samples.json` и демо-заявки из `data/demo_companies.json`: балл, грейд, факторы, решение банка, задуманные исходы демо;
 - форму ответа по контракту (3–8 факторов без префикса, по убыванию модуля вклада), PD по формуле backend, балл = 50 + сумма вкладов;
 - всё, что может прислать backend, принимается, а `null` в обязательных полях и некорректные значения дают `400` (`tests/test_backend_contract.py`);
-- копия расчётов backend проходит ассерты из тестов самого backend (`tests/test_backend_reference.py`); данные пересобираются тем же результатом.
+- копия расчётов backend проходит ассерты из тестов самого backend (`tests/test_backend_reference.py`); данные пересобираются тем же результатом;
+- preview не выдаёт балл, грейд и PD, его подсказки совпадают с факторами оценки на тех же данных, меньшая сумма совпадает с формулой
+  `DecisionPolicy` (`tests/test_preview.py`);
+- `scripts/e2e_backend.py` на фейковом backend: одобрение и меньшая сумма доходят до выдачи, отказ не пускает к договору, скрипт падает
+  при неверном режиме, версии `rules-v1` в откате и договоре для отказа (`tests/test_e2e_script.py`).
 
 ## Контракт
 
@@ -103,8 +104,16 @@ pytest -q
 
 Обязательность повторяет типы запроса в backend: что в C# не nullable, здесь обязательно. Правила расчёта: [docs/calculation.md](docs/calculation.md).
 
-Ответ `200`: `request_id`, `model_version` (`rules-0.3`), `score` (0..100), `risk_grade` (A..E), `probability_of_default`
-(формула backend), `factors[]` (`code` без префикса, `title`, `impact`, `value`, `client_explanation`), `warnings[]`, `missing_data[]`.
+Ответ `200`: `request_id`, `model_version` (`rules-0.3`), `score` (0..100), `risk_grade` (A..E), `probability_of_default`,
+`factors[]` (`code` без префикса, `title`, `impact`, `value`, `client_explanation`), `warnings[]`, `missing_data[]`.
+
+`probability_of_default` — **эвристика**, а не измеренная вероятность: `0,02 + (100 − score) / 100 × 0,30`, та же формула, что у backend.
+Правила не откалиброваны на дефолтах, поэтому это не доля дефолтов по статистике и тем более не вероятность одобрения заявки.
+В интерфейсе клиента её не показываем; менеджеру — с подписью «оценка по баллу».
+
+`POST /api/v1/preview` — подсказка для формы до подачи заявки: финансовые факторы, уровень нагрузки (Comfortable / Moderate / Elevated /
+High или `InsufficientData`) и «сумму могут снизить до …» по формуле `DecisionPolicy`, без балла, грейда и PD, с признаком
+`is_credit_decision: false`. Пустые поля формы не ошибка. Подробно: [docs/preview.md](docs/preview.md).
 Подробный пример: [docs/score-examples.md](docs/score-examples.md).
 
 Ошибка: `400` и `{"error": "validation", "details": {"поле": "описание"}}`.
@@ -117,6 +126,7 @@ pytest -q
   как его отправляет backend), `expected` (ответ Python), `csharp_fallback` (резервные правила backend в текущем виде, `rules-v1`)
   и `decision` (решение кредитной политики backend при каждом из ответов). Эти же заявки прогоняет `scripts/smoke.py`.
 - `data/conformance/rules-0.3.json`: общий эталон для Python и C# (63 случая), собирает `scripts/conformance.py`.
+- `data/conformance/affordability-bands-rules-0.3.json`: эталон уровней нагрузки для предварительного подбора (backend и `/api/v1/preview`).
 - `data/requests/*.json`: те же пять запросов отдельными файлами, готовые для `curl -d @data/requests/demo-good.json`.
 - `data/samples.json`: 12 синтетических примеров для тестов, четыре сценария по три, `input` и `expected` отдельно.
 
@@ -132,6 +142,16 @@ python scripts/demo_comparison.py table http://localhost:8000  # таблица 
 python scripts/demo_comparison.py examples http://localhost:8000  # пересобрать docs/score-examples.md
 ```
 
+## Образ в GHCR
+
+Образ публикуется в `ghcr.io/uandrosova07-arch/scoring` с тегами `<sha коммита>`, `rules-X.Y` (версия правил из `app/rules.py`) и `latest`.
+**Пакет должен оставаться публичным**: общий compose backend тянет его без логина. Видимость — настройка самого пакета на GitHub,
+из CI её не поменять: Packages → `scoring` → Package settings → Danger Zone → Change visibility → Public (делает владелец репозитория).
+Проверка без логина: `docker logout ghcr.io && docker pull ghcr.io/uandrosova07-arch/scoring:latest`.
+
+В общем compose ставится тег конкретного коммита. Менять правила — только по процессу из [docs/calculation.md](docs/calculation.md#изменение-правил):
+новая версия, пересобранные эталоны здесь, копия у backend, зелёные тесты с обеих сторон, новый тег в compose.
+
 ## Сборка и деплой
 
 Схема совпадает с остальными репозиториями: проверка и сборка, образ в реестр, единый деплой из `infra`.
@@ -139,7 +159,7 @@ python scripts/demo_comparison.py examples http://localhost:8000  # пересо
 
 1. Pull request и push в `main`: установка зависимостей и `pytest`.
 2. Push в `main`: сборка образа и публикация в GitHub Container Registry
-   (`ghcr.io/<владелец>/<репозиторий>:<sha коммита>` и `:latest`).
+   (`ghcr.io/<владелец>/<репозиторий>:<sha коммита>`, `:rules-X.Y` и `:latest`).
 3. Если заданы секрет `INFRA_DISPATCH_TOKEN` и переменная `INFRA_REPO`, отправляется `repository_dispatch`
    (`event_type: component-updated`, в `client_payload` компонент `scoring`, образ и тег) в репозиторий `infra`.
    Без них шаг пропускается, образ всё равно публикуется.
@@ -153,11 +173,10 @@ docker compose up -d --no-deps scoring
 
 ## Открытые вопросы
 
-- **Правки `rules-0.3` в C#.** Сервис уже считает по `rules-0.3`, в резервных правилах backend их нужно внести: правило для расходов,
-  прибыль без `net_profit_rub`, нагрузка одним делением, версия. До этого балл и грейд расходятся в 3 случаях эталона из 63
-  (все про расходы), демо-заявки совпадают. Что и как поменять: [docs/backend/README.md](docs/backend/README.md),
-  сверка: [docs/grade-comparison.md](docs/grade-comparison.md).
-- **Контракт backend** (`docs/scoring-contract.md`): обновить коды факторов (без префикса), число факторов (3–8), PD, обязательные поля.
-- **Заглушка backend** `scoring/app.py` повторяет `rules-v1`: заменить этим сервисом в общем compose.
+- **Предварительный подбор** согласован: уровни нагрузки по полосам 30 / 50 / 70 % и `InsufficientData` без подстановки 10 % выручки
+  ([docs/preview.md](docs/preview.md)). Даты графика договора backend считает по UTC; если календарь переведут на московский
+  и это коснётся даты расчёта возраста бизнеса, сообщить: эталоны зафиксированы на дату `as_of` и не изменятся, но демо-заявки на стенде могут.
+- **Прогон на стенде.** Сквозная проверка подготовлена и проверена на фейковом backend; результаты на общем стенде даёт
+  `scripts/run_stand_checks.sh` ([docs/stand-checks.md](docs/stand-checks.md)).
 - **Версия модели.** В примере контракта `lgbm-2026.10.21`, у нас `rules-0.3`: это правила, а не обученная модель.
-  PD — эвристика backend, не калибровка на дефолтах.
+  PD — эвристика по баллу, не калибровка на дефолтах.

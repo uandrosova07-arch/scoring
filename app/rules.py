@@ -11,21 +11,23 @@ from fractions import Fraction
 
 from app.schemas import Checks, Factor, ScoreRequest, ScoreResponse
 
-
+# Версия правил зашита в код и не настраивается окружением: изменились баллы или пороги, значит, меняем эту строку
+# (и таблицу версий в docs/calculation.md) вместе с backend.
 MODEL_VERSION = "rules-0.3"
 
 BASE_SCORE = 50
 GRADES = ((80, "A"), (65, "B"), (50, "C"), (35, "D"), (0, "E"))
 
-
-EXPENSE_RATIO_HIGH_ABOVE = Fraction(9, 10) 
+# Порядок проверок в C#: от него зависит порядок предупреждений.
+EXPENSE_RATIO_HIGH_ABOVE = Fraction(9, 10)  # расходы > 90 % выручки: −10
 EXPENSE_HIGH_POINTS = -10
-PROFIT_SHARE_IF_UNKNOWN = Fraction(1, 10) 
-NO_PROFIT_LOAD = Fraction(999, 100) 
+PROFIT_SHARE_IF_UNKNOWN = Fraction(1, 10)  # нет ни прибыли, ни расходов: прибыль = 10 % выручки
+NO_PROFIT_LOAD = Fraction(999, 100)  # нагрузка при прибыли <= 0, как в C#
 TAX_DEBT_SMALL_BELOW = 50_000
 
 
 def _frac(x: float | int) -> Fraction:
+    # repr даёт десятичную запись числа из JSON, поэтому 0.1 остаётся 1/10, как decimal в C#.
     return Fraction(repr(x)) if isinstance(x, float) else Fraction(x)
 
 
@@ -58,7 +60,7 @@ def grade_for(score: int) -> str:
 
 
 def probability_of_default(score: int) -> float:
-    
+    # Эвристика backend, а не калибровка на дефолтах: 2 % при 100 баллах, 32 % при 0. Точное число, округлять не нужно.
     return float(Fraction(2, 100) + Fraction(100 - score, 100) * Fraction(30, 100))
 
 
@@ -90,10 +92,28 @@ def _expense_ratio(expenses: Fraction, revenue: Fraction) -> Factor:
     return _f("expense_ratio", "Расходы к выручке", impact, _fmt(ratio, 2), text)
 
 
+# Полосы долговой нагрузки: (верхняя граница, не включая; вклад в балл; уровень для клиента). Нижняя граница включается:
+# ровно 0,3 уже Moderate, ровно 0,7 уже High. Те же полосы backend показывает в предварительном подборе как уровни
+# Comfortable / Moderate / Elevated / High (без баллов), поэтому менять их можно только вместе (docs/calculation.md, «Изменение правил»).
+DEBT_LOAD_BANDS = ((Fraction(3, 10), 10, "Comfortable"), (Fraction(5, 10), 0, "Moderate"), (Fraction(7, 10), -10, "Elevated"))
+DEBT_LOAD_HIGH = (-25, "High")
+
+
+def debt_load_ratio(annual_profit: Fraction, payments: Fraction) -> Fraction:
+    """(текущие платежи + новый платёж) / месячная прибыль, одним делением: платежи * 12 / годовая прибыль; прибыль <= 0: 9,99."""
+    return NO_PROFIT_LOAD if annual_profit <= 0 else payments * 12 / annual_profit
+
+
+def debt_load_band(load: Fraction) -> tuple[int, str]:
+    for upper, impact, level in DEBT_LOAD_BANDS:
+        if load < upper:
+            return impact, level
+    return DEBT_LOAD_HIGH
+
+
 def _debt_load(annual_profit: Fraction, payments: Fraction) -> Factor:
-    
-    load = NO_PROFIT_LOAD if annual_profit <= 0 else payments * 12 / annual_profit
-    impact = 10 if load < Fraction(3, 10) else 0 if load < Fraction(5, 10) else -10 if load < Fraction(7, 10) else -25
+    load = debt_load_ratio(annual_profit, payments)
+    impact, _ = debt_load_band(load)
     text = ("Платежи по кредитам занимают небольшую часть прибыли." if impact > 0
             else "Платежи по кредитам занимают около половины месячной прибыли." if impact == 0
             else "Платежи по кредитам с учётом нового займа занимают слишком большую часть прибыли.")
@@ -159,13 +179,13 @@ def score(req: ScoreRequest) -> ScoreResponse:
     expenses = None if fin.expenses_rub is None else _frac(fin.expenses_rub)
     factors, warnings = [_business_age(req.company.business_age_months), _revenue_to_amount(revenue, amount)], []
 
-    
+    # Расходы: отдельный фактор, только штраф (прибыль, а значит и нагрузка, уже учитывает расходы).
     if expenses is None:
         warnings.append("expenses_missing")
     elif revenue > 0:
         factors.append(_expense_ratio(expenses, revenue))
 
-    
+    # Прибыль за 12 месяцев: из запроса; если нет, выручка минус расходы; если нет и расходов, 10 % выручки.
     if fin.net_profit_rub is not None:
         annual_profit = _frac(fin.net_profit_rub)
     else:
@@ -185,7 +205,7 @@ def score(req: ScoreRequest) -> ScoreResponse:
         factors.append(_f("collateral", "Обеспечение", 10, "предложено", "Предложенный залог снижает риск банка."))
 
     total = max(0, min(100, BASE_SCORE + sum(f.impact for f in factors)))
-    
+    # По убыванию модуля вклада, при равенстве по коду (порядковое сравнение, как ThenBy(Code) в C#).
     factors.sort(key=lambda f: (-abs(f.impact), f.code))
     return ScoreResponse(
         request_id=req.request_id,

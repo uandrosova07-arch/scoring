@@ -1,7 +1,9 @@
 # rules-0.3 на стороне backend
 
-Сервис scoring уже считает по `rules-0.3`. Чтобы резервные правила backend давали тот же результат на любых входах,
-в C# нужны правки ниже. Спецификация: [../calculation.md](../calculation.md), результаты сверки: [../grade-comparison.md](../grade-comparison.md).
+Статус: **внесено в backend** (по данным бэкендера, 24.10.2026): правки `RuleBasedScoringService`, общий эталон
+в тестах backend, заглушка scoring в общем compose заменена сервисом. Ниже — что именно было изменено, для справки и для проверки.
+Подтверждение в полном процессе: [../stand-checks.md](../stand-checks.md) (`scripts/run_stand_checks.sh`, режим RulesFallback должен
+показывать `modelVersion = rules-0.3`). Спецификация: [../calculation.md](../calculation.md), результаты сверки: [../grade-comparison.md](../grade-comparison.md).
 
 ## 1. Правки кода
 
@@ -50,11 +52,19 @@
   `probability_of_default` сервис возвращает по той же формуле, что backend; обязательные поля (не `null`): `revenue_rub`,
   `monthly_debt_payments_rub`, `business_age_months`, `estimated_monthly_payment_rub`; при откате `model_version = rules-0.3`.
 - `docs/decision-logic.md`: в таблицу балльной модели добавить строку «Расходы к выручке» и правило прибыли без `net_profit_rub`.
-- Заглушка `scoring/app.py` (`stub-rules-1.0`) повторяет `rules-v1`: заменить её сервисом scoring
-  (`docs/backend/compose.scoring.yml`) или удалить, чтобы в стенде не было третьей версии правил.
+- Заглушка `scoring/app.py` (`stub-rules-1.0`) заменена сервисом scoring. `compose.scoring.yml` нужен только для старых версий backend.
+- `probability_of_default` в карточке менеджера подписывать как «оценка по баллу»: это эвристика `0,02 + (100 − балл) / 100 × 0,30`,
+  а не измеренная вероятность и не вероятность одобрения.
 
-## 4. Как не разойтись дальше
+## 4. Предварительный подбор (согласовано 24.10.2026)
 
-Любое изменение факторов, порогов, текстов или обработки пропусков делается одновременно в обоих репозиториях:
-новая версия (`rules-0.4`), пересборка эталона `python scripts/conformance.py build` в scoring, копия файла в backend,
-зелёные `tests/test_conformance.py` и `ScoringConformanceTests` с обеих сторон.
+Backend показывает клиенту уровни нагрузки Comfortable / Moderate / Elevated / High по полосам 30 / 50 / 70 % и `InsufficientData`
+с `null` в числовых полях, когда прибыль неизвестна. Сервис scoring отдаёт то же в `POST /api/v1/preview` ([../preview.md](../preview.md)).
+Общий эталон уровней: `data/conformance/affordability-bands-rules-0.3.json` — положить рядом с `conformance-rules-0.3.json`
+и сверять уровень, `debt_load`, месячную прибыль, платежи и `profitBasis`. Расхождение с оценкой при подаче (там прибыль = 10 % выручки)
+ML подтвердил как допустимое.
+
+## 5. Как не разойтись дальше
+
+Договорённость 24.10.2026: предупредить заранее → новая версия → эталоны пересобирает scoring → копия у backend → зелёные тесты
+с обеих сторон → новый тег образа в compose (`:<sha>`). Подробно: [../calculation.md](../calculation.md#изменение-правил).

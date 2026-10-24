@@ -31,7 +31,7 @@ def by_code(payload: dict) -> dict:
     return {f["code"]: f for f in post(payload).json()["factors"]}
 
 
-
+# ---- примеры ----
 
 def test_sample_count_and_scenarios():
     assert 8 <= len(SAMPLES) <= 12
@@ -52,7 +52,7 @@ def test_samples_match_expected(sample):
 
 @pytest.mark.parametrize("sample", SAMPLES, ids=[s["id"] for s in SAMPLES])
 def test_samples_expected_still_match_csharp_copy(sample):
-    
+    # expected в samples.json не устарел: его по-прежнему даёт копия C# с правками rules-0.3.
     r = br.score_rules_v1(sample["input"], agreed=True)
     assert (r["score"], r["risk_grade"]) == (sample["expected"]["score"], sample["expected"]["risk_grade"])
 
@@ -64,6 +64,7 @@ def test_same_input_same_output(sample):
         assert post(sample["input"]).content == first
 
 
+# ---- соответствие контракту ----
 
 @pytest.mark.parametrize("sample", SAMPLES, ids=[s["id"] for s in SAMPLES])
 def test_response_shape_follows_contract(sample):
@@ -75,7 +76,7 @@ def test_response_shape_follows_contract(sample):
     assert body["probability_of_default"] == probability_of_default(body["score"])
     assert 3 <= len(body["factors"]) <= 8
     key = [(-abs(f["impact"]), f["code"]) for f in body["factors"]]
-    assert key == sorted(key)  
+    assert key == sorted(key)  # по убыванию модуля вклада, при равенстве по коду
     for f in body["factors"]:
         assert set(f) == {"code", "title", "impact", "value", "client_explanation"}
         assert not f["code"].startswith("factor_")
@@ -84,7 +85,7 @@ def test_response_shape_follows_contract(sample):
 
 @pytest.mark.parametrize("sample", SAMPLES, ids=[s["id"] for s in SAMPLES])
 def test_score_is_base_plus_factor_impacts(sample):
-    
+    # Причины соответствуют выполненным правилам: балл = 50 + сумма вкладов (с ограничением 0..100).
     body = post(sample["input"]).json()
     assert body["score"] == max(0, min(100, 50 + sum(f["impact"] for f in body["factors"])))
 
@@ -100,13 +101,13 @@ def test_probability_of_default_is_backend_formula(score, pd):
     assert probability_of_default(score) == pd
 
 
-
+# ---- факторы ----
 
 def test_factor_values_match_independent_calculation():
     f = by_code(stable())
     s = stable()
-    assert f["revenue_to_amount"]["value"] == "32.0x" 
-    assert f["expense_ratio"]["value"] == "0.63"        
+    assert f["revenue_to_amount"]["value"] == "32.0x"   # 48 000 000 / 1 500 000
+    assert f["expense_ratio"]["value"] == "0.63"        # 30 000 000 / 48 000 000 = 0.625, половина вверх
     load = (100_000 + s["application"]["estimated_monthly_payment_rub"]) * 12 / 18_000_000
     assert f["debt_load"]["value"] == f"{load:.2f}" == "0.16"
     assert f["business_age"]["value"] == "7 г."         # 84 месяца
@@ -114,9 +115,9 @@ def test_factor_values_match_independent_calculation():
 
 
 def test_estimated_payment_from_backend_is_used():
-    
+    # Платёж, который прислал backend, входит в нагрузку как есть.
     big = stable()
-    big["application"]["estimated_monthly_payment_rub"] = 5_000_000 
+    big["application"]["estimated_monthly_payment_rub"] = 5_000_000  # против прибыли 1,5 млн в месяц
     assert by_code(big)["debt_load"]["impact"] == -25
     assert by_code(stable())["debt_load"]["impact"] == 10
 
@@ -126,7 +127,7 @@ def test_net_profit_from_request_is_used_else_derived():
     low["company"]["financials"]["net_profit_rub"] = 1_000_000
     assert by_code(low)["debt_load"]["impact"] == -25
     derived = stable()
-    derived["company"]["financials"]["net_profit_rub"] = None  
+    derived["company"]["financials"]["net_profit_rub"] = None  # 48 млн − 30 млн = 18 млн, как в запросе
     assert by_code(derived)["debt_load"] == by_code(stable())["debt_load"]
 
 
@@ -156,7 +157,7 @@ def test_health_and_alias():
     assert client.post("/score", json=stable()).json() == post(stable()).json()
 
 
-
+# ---- пропуски: как у резервных правил backend ----
 
 def test_missing_check_blocks_skip_their_factors_with_warnings():
     s = stable()
@@ -174,7 +175,7 @@ def test_null_checks_block_means_no_sources():
     body = post(s).json()
     assert body["warnings"] == ["credit_bureau_missing", "fns_missing", "fssp_missing"]
     assert body["missing_data"] == ["checks.egrul", "checks.fns", "checks.credit_bureau", "checks.fssp"]
-    assert len(body["factors"]) == 4  
+    assert len(body["factors"]) == 4  # возраст, выручка к сумме, расходы, нагрузка
 
 
 def test_missing_expenses_and_profit_use_ten_percent_of_revenue():
@@ -202,7 +203,7 @@ def test_unknown_fields_are_ignored():
     assert post(s).status_code == 200
 
 
-
+# ---- некорректные значения: 400 в формате контракта ----
 
 @pytest.mark.parametrize(
     "path, value, field",

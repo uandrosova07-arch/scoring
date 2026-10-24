@@ -47,7 +47,7 @@ def test_cases_cover_demo_missing_data_and_boundaries():
     groups = {c["group"] for c in CASES}
     assert groups == {"demo", "missing", "boundary"}
     ids = {c["id"] for c in CASES}
-
+    # Каждый порог проверен с обеих сторон.
     for pair in (("age-5", "age-6"), ("age-11", "age-12"), ("age-35", "age-36"),
                  ("revenue-ratio-6000000", "revenue-ratio-5999999"), ("revenue-ratio-1500000", "revenue-ratio-1499999"),
                  ("expense-ratio-43200000", "expense-ratio-43200001"), ("debt-load-41406", "debt-load-41407"),
@@ -67,7 +67,7 @@ def test_shared_cases_rebuild_identically():
     assert conformance.main("check") == 0
 
 
-
+# ---- случайные входы: Python и копия C# rules-0.3 не расходятся нигде, в том числе вплотную к порогам ----
 
 def _random_request(rng, base: dict) -> dict:
     r = copy.deepcopy(base)
@@ -82,7 +82,7 @@ def _random_request(rng, base: dict) -> dict:
     f["net_profit_rub"] = rng.choice([None, 0, rng.randint(-5_000_000, 60_000_000)])
     f["monthly_debt_payments_rub"] = rng.randint(0, 3_000_000)
     if f["net_profit_rub"] and f["net_profit_rub"] > 0 and rng.random() < 0.3:
-        
+        # ровно на границе нагрузки 0,3 / 0,5 / 0,7 или на рубль выше
         total = f["net_profit_rub"] * rng.choice([3, 5, 7]) // 120
         f["monthly_debt_payments_rub"] = max(total - a["estimated_monthly_payment_rub"], 0) + rng.choice([0, 1])
     ch["credit_bureau"] = rng.choice([None, {
