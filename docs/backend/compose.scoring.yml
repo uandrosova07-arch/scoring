@@ -1,0 +1,12 @@
+# Подменяет заглушку backend (./scoring, stub-rules-1.0) этим сервисом (rules-0.3), остальной стенд без изменений.
+# Положить в корень репозитория backend рядом с docker-compose.yml. Репозиторий scoring лежит рядом (../scoring),
+# иначе укажите путь в SCORING_SRC.
+#
+#   docker compose -f docker-compose.yml -f compose.scoring.yml up --build -d
+#   curl localhost:8000/health        # должно быть "model_version":"rules-0.3", у заглушки "stub-rules-1.0"
+services:
+  scoring:
+    build:
+      context: ${SCORING_SRC:-../scoring}
+      dockerfile: Dockerfile
+    image: alfacredit-scoring-rules:local

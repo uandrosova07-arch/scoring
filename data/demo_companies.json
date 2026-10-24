@@ -1,11 +1,11 @@
 {
   "meta": {
-    "status": "Данные seed backend; баллы и пороги rules-0.2 не менялись и не согласованы",
+    "status": "rules-0.3: факторы и пороги резервных C#-правил плюс согласуемое правило для расходов",
     "backend_commit": "9f18dd4",
     "as_of": "2026-10-23",
     "contract": "POST /api/v1/score, docs/scoring-contract.md в репозитории backend",
-    "model_version": "rules-0.2",
-    "note": "Собрано scripts/demo_comparison.py build. input: запрос ровно в том виде, как его отправит backend (SeedData.cs, KnownProfiles.cs, продукт, сумма и срок из общего демо, возраст бизнеса на as_of). expected: ответ Python, посчитанный независимо от app/rules.py. csharp_fallback: резервные правила backend. decision: решение кредитной политики backend при каждом из двух ответов."
+    "model_version": "rules-0.3",
+    "note": "Собрано scripts/demo_comparison.py build. input: запрос ровно в том виде, как его отправит backend (SeedData.cs, KnownProfiles.cs, продукт, сумма и срок из общего демо, возраст бизнеса на as_of). expected: ответ Python rules-0.3, посчитанный копией C# с правками rules-0.3, а не сервисом. csharp_fallback: текущие резервные правила backend (rules-v1). decision: решение кредитной политики backend при каждом из двух ответов."
   },
   "companies": [
     {
@@ -92,30 +92,51 @@
         }
       },
       "expected": {
-        "score": 55,
-        "risk_grade": "C",
+        "score": 95,
+        "risk_grade": "A",
+        "probability_of_default": 0.035,
         "missing_data": [],
         "warnings": [],
         "factors": [
           {
-            "code": "factor_business_age",
+            "code": "credit_history",
+            "impact": 15,
+            "value": "без просрочек"
+          },
+          {
+            "code": "revenue_to_amount",
+            "impact": 15,
+            "value": "32.0x"
+          },
+          {
+            "code": "business_age",
             "impact": 10,
-            "value": "91 мес."
+            "value": "7 г. 7 мес."
           },
           {
-            "code": "factor_expense_ratio",
-            "impact": -5,
-            "value": "85%"
+            "code": "tax_debt",
+            "impact": 5,
+            "value": "нет"
           },
           {
-            "code": "factor_debt_load",
+            "code": "debt_load",
             "impact": 0,
-            "value": "48%"
+            "value": "0.48"
+          },
+          {
+            "code": "enforcement",
+            "impact": 0,
+            "value": "нет"
+          },
+          {
+            "code": "expense_ratio",
+            "impact": 0,
+            "value": "0.85"
           }
         ]
       },
       "csharp_fallback": {
-        "source": "rules-v1, перенос кода backend 9f18dd4 (scripts/backend_reference.py); подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+        "source": "rules-v1: код backend 9f18dd4 до правок rules-0.3 (scripts/backend_reference.py), подтверждён бэкендером тестом DemoSeedScoringTests",
         "score": 95,
         "risk_grade": "A",
         "probability_of_default": 0.035,
@@ -157,17 +178,17 @@
       "decision": {
         "python": {
           "auto": {
-            "type": "ApprovedWithConditions",
+            "type": "Approved",
             "recommended_type": null,
             "amount": 1500000,
             "term_months": 12,
-            "interest_rate": 22.5,
-            "monthly_payment": 140752.78,
+            "interest_rate": 19.5,
+            "monthly_payment": 138593.06,
             "decision_reasons": [
               "risk_grade",
-              "factor_factor_business_age",
-              "factor_factor_expense_ratio",
-              "factor_factor_debt_load"
+              "factor_credit_history",
+              "factor_revenue_to_amount",
+              "factor_business_age"
             ]
           }
         },
@@ -273,30 +294,51 @@
         }
       },
       "expected": {
-        "score": 75,
-        "risk_grade": "B",
+        "score": 55,
+        "risk_grade": "C",
+        "probability_of_default": 0.155,
         "missing_data": [],
         "warnings": [],
         "factors": [
           {
-            "code": "factor_expense_ratio",
-            "impact": 15,
-            "value": "44%"
-          },
-          {
-            "code": "factor_business_age",
+            "code": "business_age",
             "impact": 10,
-            "value": "40 мес."
+            "value": "3 г. 4 мес."
           },
           {
-            "code": "factor_debt_load",
+            "code": "credit_history",
+            "impact": -5,
+            "value": "просрочка до 25 дн."
+          },
+          {
+            "code": "revenue_to_amount",
+            "impact": 5,
+            "value": "3.2x"
+          },
+          {
+            "code": "tax_debt",
+            "impact": -5,
+            "value": "12 000 ₽"
+          },
+          {
+            "code": "debt_load",
             "impact": 0,
-            "value": "48%"
+            "value": "0.48"
+          },
+          {
+            "code": "enforcement",
+            "impact": 0,
+            "value": "нет"
+          },
+          {
+            "code": "expense_ratio",
+            "impact": 0,
+            "value": "0.44"
           }
         ]
       },
       "csharp_fallback": {
-        "source": "rules-v1, перенос кода backend 9f18dd4 (scripts/backend_reference.py); подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+        "source": "rules-v1: код backend 9f18dd4 до правок rules-0.3 (scripts/backend_reference.py), подтверждён бэкендером тестом DemoSeedScoringTests",
         "score": 55,
         "risk_grade": "C",
         "probability_of_default": 0.155,
@@ -338,17 +380,18 @@
       "decision": {
         "python": {
           "auto": {
-            "type": "Approved",
+            "type": "ApprovedWithConditions",
             "recommended_type": null,
-            "amount": 3000000,
+            "amount": 2400000,
             "term_months": 24,
-            "interest_rate": 21,
-            "monthly_payment": 154156.95,
+            "interest_rate": 22.5,
+            "monthly_payment": 125100.96,
             "decision_reasons": [
               "risk_grade",
-              "factor_factor_expense_ratio",
-              "factor_factor_business_age",
-              "factor_factor_debt_load"
+              "amount_reduced",
+              "factor_business_age",
+              "factor_credit_history",
+              "factor_revenue_to_amount"
             ]
           }
         },
@@ -455,30 +498,51 @@
         }
       },
       "expected": {
-        "score": 35,
-        "risk_grade": "D",
+        "score": 70,
+        "risk_grade": "B",
+        "probability_of_default": 0.11,
         "missing_data": [],
         "warnings": [],
         "factors": [
           {
-            "code": "factor_debt_load",
-            "impact": -20,
-            "value": "120%"
+            "code": "debt_load",
+            "impact": -25,
+            "value": "1.20"
           },
           {
-            "code": "factor_business_age",
+            "code": "credit_history",
+            "impact": 15,
+            "value": "без просрочек"
+          },
+          {
+            "code": "revenue_to_amount",
+            "impact": 15,
+            "value": "22.5x"
+          },
+          {
+            "code": "business_age",
             "impact": 10,
-            "value": "121 мес."
+            "value": "10 г. 1 мес."
           },
           {
-            "code": "factor_expense_ratio",
-            "impact": -5,
-            "value": "89%"
+            "code": "tax_debt",
+            "impact": 5,
+            "value": "нет"
+          },
+          {
+            "code": "enforcement",
+            "impact": 0,
+            "value": "нет"
+          },
+          {
+            "code": "expense_ratio",
+            "impact": 0,
+            "value": "0.89"
           }
         ]
       },
       "csharp_fallback": {
-        "source": "rules-v1, перенос кода backend 9f18dd4 (scripts/backend_reference.py); подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+        "source": "rules-v1: код backend 9f18dd4 до правок rules-0.3 (scripts/backend_reference.py), подтверждён бэкендером тестом DemoSeedScoringTests",
         "score": 70,
         "risk_grade": "B",
         "probability_of_default": 0.11,
@@ -521,28 +585,27 @@
         "python": {
           "auto": {
             "type": "ManualReview",
-            "recommended_type": "ApprovedWithConditions",
+            "recommended_type": "Approved",
             "amount": null,
             "term_months": null,
             "interest_rate": null,
             "monthly_payment": null,
             "decision_reasons": [
-              "grade_d",
+              "amount_above_auto_limit",
               "risk_grade",
-              "factor_factor_debt_load",
-              "factor_factor_business_age",
-              "factor_factor_expense_ratio"
+              "factor_debt_load",
+              "factor_credit_history",
+              "factor_revenue_to_amount"
             ]
           },
           "demo_manager_if_approved": {
             "type": "ApprovedWithConditions",
             "amount": 8000000,
             "term_months": 24,
-            "interest_rate": 24.5,
-            "monthly_payment": 424967.84,
+            "interest_rate": 21,
+            "monthly_payment": 411085.21,
             "conditions": [
-              "rate_premium",
-              "bank_statement_6m"
+              "rate_premium"
             ]
           }
         },
@@ -659,30 +722,51 @@
         }
       },
       "expected": {
-        "score": 20,
+        "score": 0,
         "risk_grade": "E",
+        "probability_of_default": 0.32,
         "missing_data": [],
         "warnings": [],
         "factors": [
           {
-            "code": "factor_expense_ratio",
-            "impact": -20,
-            "value": "99%"
+            "code": "credit_history",
+            "impact": -30,
+            "value": "просрочка 95 дн."
           },
           {
-            "code": "factor_debt_load",
-            "impact": -20,
-            "value": "8268%"
+            "code": "tax_debt",
+            "impact": -30,
+            "value": "700 000 ₽"
           },
           {
-            "code": "factor_business_age",
+            "code": "debt_load",
+            "impact": -25,
+            "value": "прибыль отсутствует"
+          },
+          {
+            "code": "revenue_to_amount",
+            "impact": 15,
+            "value": "28.0x"
+          },
+          {
+            "code": "business_age",
             "impact": 10,
-            "value": "80 мес."
+            "value": "6 г. 8 мес."
+          },
+          {
+            "code": "enforcement",
+            "impact": -10,
+            "value": "2 на 1 400 000 ₽"
+          },
+          {
+            "code": "expense_ratio",
+            "impact": -10,
+            "value": "0.99"
           }
         ]
       },
       "csharp_fallback": {
-        "source": "rules-v1, перенос кода backend 9f18dd4 (scripts/backend_reference.py); подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+        "source": "rules-v1: код backend 9f18dd4 до правок rules-0.3 (scripts/backend_reference.py), подтверждён бэкендером тестом DemoSeedScoringTests",
         "score": 0,
         "risk_grade": "E",
         "probability_of_default": 0.32,
@@ -842,39 +926,53 @@
         }
       },
       "expected": {
-        "score": 40,
-        "risk_grade": "D",
+        "score": 25,
+        "risk_grade": "E",
+        "probability_of_default": 0.245,
         "missing_data": [
-          "company.financials.expenses_rub"
+          "company.financials.expenses_rub",
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub"
         ],
         "warnings": [
-          "insufficient_data"
+          "expenses_missing",
+          "net_profit_missing"
         ],
         "factors": [
           {
-            "code": "factor_insufficient_data",
-            "impact": -10,
-            "value": "не хватает: expenses_rub"
+            "code": "debt_load",
+            "impact": -25,
+            "value": "2.82"
           },
           {
-            "code": "factor_expense_ratio",
-            "impact": 0,
-            "value": "нет данных"
-          },
-          {
-            "code": "factor_debt_load",
-            "impact": 0,
-            "value": "нет данных"
-          },
-          {
-            "code": "factor_business_age",
-            "impact": 0,
+            "code": "business_age",
+            "impact": -20,
             "value": "4 мес."
+          },
+          {
+            "code": "revenue_to_amount",
+            "impact": 15,
+            "value": "4.0x"
+          },
+          {
+            "code": "tax_debt",
+            "impact": 5,
+            "value": "нет"
+          },
+          {
+            "code": "credit_history",
+            "impact": 0,
+            "value": "нет истории"
+          },
+          {
+            "code": "enforcement",
+            "impact": 0,
+            "value": "нет"
           }
         ]
       },
       "csharp_fallback": {
-        "source": "rules-v1, перенос кода backend 9f18dd4 (scripts/backend_reference.py); подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+        "source": "rules-v1: код backend 9f18dd4 до правок rules-0.3 (scripts/backend_reference.py), подтверждён бэкендером тестом DemoSeedScoringTests",
         "score": 25,
         "risk_grade": "E",
         "probability_of_default": 0.245,
@@ -922,29 +1020,18 @@
       "decision": {
         "python": {
           "auto": {
-            "type": "ManualReview",
-            "recommended_type": "ApprovedWithConditions",
+            "type": "Rejected",
+            "recommended_type": null,
             "amount": null,
             "term_months": null,
             "interest_rate": null,
             "monthly_payment": null,
             "decision_reasons": [
-              "grade_d",
+              "grade_e",
               "risk_grade",
-              "factor_factor_insufficient_data",
-              "factor_factor_expense_ratio",
-              "factor_factor_debt_load"
-            ]
-          },
-          "demo_manager_if_approved": {
-            "type": "ApprovedWithConditions",
-            "amount": 300000,
-            "term_months": 12,
-            "interest_rate": 28,
-            "monthly_payment": 28951.8,
-            "conditions": [
-              "rate_premium",
-              "bank_statement_6m"
+              "factor_debt_load",
+              "factor_business_age",
+              "factor_revenue_to_amount"
             ]
           }
         },

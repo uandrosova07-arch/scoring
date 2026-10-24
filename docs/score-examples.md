@@ -1,10 +1,10 @@
 # Примеры вызова `POST /api/v1/score`
 
 Контракт: `docs/scoring-contract.md` в репозитории backend. Адрес внутри Compose: `http://scoring:8000/api/v1/score`.
-Запросы собраны из seed backend (коммит `9f18dd4`) ровно в том виде, как их отправляет backend, возраст бизнеса на 2026-10-23. Ответы сняты с запущенного сервиса `rules-0.2` командой `python scripts/demo_comparison.py examples http://localhost:8000`, а не написаны вручную.
+Запросы собраны из seed backend (коммит `9f18dd4`) ровно в том виде, как их отправляет backend, возраст бизнеса на 2026-10-23. Ответы сняты с запущенного сервиса `rules-0.3` командой `python scripts/demo_comparison.py examples http://localhost:8000`, а не написаны вручную.
 Готовые файлы запросов: `data/requests/*.json` (`curl -d @data/requests/demo-good.json ...`). Сравнение с резервными C#-правилами и итоговые решения: [grade-comparison.md](grade-comparison.md).
 
-## ООО «Ромашка»: стабильный бизнес (`demo-good`): 55 баллов, грейд C
+## ООО «Ромашка»: стабильный бизнес (`demo-good`): 95 баллов, грейд A
 
 Заявка: working-capital, 1 500 000 ₽ на 12 мес.
 
@@ -17,31 +17,59 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 ```json
 {
   "request_id": "00000000-0000-4000-8000-000000000901",
-  "model_version": "rules-0.2",
-  "score": 55,
-  "risk_grade": "C",
-  "probability_of_default": null,
+  "model_version": "rules-0.3",
+  "score": 95,
+  "risk_grade": "A",
+  "probability_of_default": 0.035,
   "factors": [
     {
-      "code": "factor_business_age",
+      "code": "credit_history",
+      "title": "Кредитная история",
+      "impact": 15,
+      "value": "без просрочек",
+      "client_explanation": "Просрочек по кредитам за два года нет."
+    },
+    {
+      "code": "revenue_to_amount",
+      "title": "Выручка к сумме кредита",
+      "impact": 15,
+      "value": "32.0x",
+      "client_explanation": "Запрошенная сумма небольшая относительно годовой выручки."
+    },
+    {
+      "code": "business_age",
       "title": "Возраст бизнеса",
       "impact": 10,
-      "value": "91 мес.",
-      "client_explanation": "Бизнесу больше трёх лет, это снижает риск"
+      "value": "7 г. 7 мес.",
+      "client_explanation": "Компания работает больше трёх лет, это снижает риск."
     },
     {
-      "code": "factor_expense_ratio",
-      "title": "Расходы к выручке",
-      "impact": -5,
-      "value": "85%",
-      "client_explanation": "Расходы занимают значительную часть выручки"
+      "code": "tax_debt",
+      "title": "Налоговая задолженность",
+      "impact": 5,
+      "value": "нет",
+      "client_explanation": "Задолженности перед налоговой нет."
     },
     {
-      "code": "factor_debt_load",
-      "title": "Кредитная нагрузка",
+      "code": "debt_load",
+      "title": "Долговая нагрузка",
       "impact": 0,
-      "value": "48%",
-      "client_explanation": "Платежи по кредитам, включая новый, составляют заметную часть прибыли"
+      "value": "0.48",
+      "client_explanation": "Платежи по кредитам занимают около половины месячной прибыли."
+    },
+    {
+      "code": "enforcement",
+      "title": "Исполнительные производства",
+      "impact": 0,
+      "value": "нет",
+      "client_explanation": "Открытых исполнительных производств нет."
+    },
+    {
+      "code": "expense_ratio",
+      "title": "Расходы к выручке",
+      "impact": 0,
+      "value": "0.85",
+      "client_explanation": "Расходы занимают обычную долю выручки."
     }
   ],
   "warnings": [],
@@ -49,7 +77,7 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 }
 ```
 
-## ИП Кузнецов: заметная долговая нагрузка (`demo-medium`): 75 баллов, грейд B
+## ИП Кузнецов: заметная долговая нагрузка (`demo-medium`): 55 баллов, грейд C
 
 Заявка: working-capital, 3 000 000 ₽ на 24 мес.
 
@@ -62,31 +90,59 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 ```json
 {
   "request_id": "00000000-0000-4000-8000-000000000902",
-  "model_version": "rules-0.2",
-  "score": 75,
-  "risk_grade": "B",
-  "probability_of_default": null,
+  "model_version": "rules-0.3",
+  "score": 55,
+  "risk_grade": "C",
+  "probability_of_default": 0.155,
   "factors": [
     {
-      "code": "factor_expense_ratio",
-      "title": "Расходы к выручке",
-      "impact": 15,
-      "value": "44%",
-      "client_explanation": "Расходы заметно ниже выручки"
-    },
-    {
-      "code": "factor_business_age",
+      "code": "business_age",
       "title": "Возраст бизнеса",
       "impact": 10,
-      "value": "40 мес.",
-      "client_explanation": "Бизнесу больше трёх лет, это снижает риск"
+      "value": "3 г. 4 мес.",
+      "client_explanation": "Компания работает больше трёх лет, это снижает риск."
     },
     {
-      "code": "factor_debt_load",
-      "title": "Кредитная нагрузка",
+      "code": "credit_history",
+      "title": "Кредитная история",
+      "impact": -5,
+      "value": "просрочка до 25 дн.",
+      "client_explanation": "За последние два года были просрочки по кредитам."
+    },
+    {
+      "code": "revenue_to_amount",
+      "title": "Выручка к сумме кредита",
+      "impact": 5,
+      "value": "3.2x",
+      "client_explanation": "Запрошенная сумма небольшая относительно годовой выручки."
+    },
+    {
+      "code": "tax_debt",
+      "title": "Налоговая задолженность",
+      "impact": -5,
+      "value": "12 000 ₽",
+      "client_explanation": "Есть задолженность перед налоговой."
+    },
+    {
+      "code": "debt_load",
+      "title": "Долговая нагрузка",
       "impact": 0,
-      "value": "48%",
-      "client_explanation": "Платежи по кредитам, включая новый, составляют заметную часть прибыли"
+      "value": "0.48",
+      "client_explanation": "Платежи по кредитам занимают около половины месячной прибыли."
+    },
+    {
+      "code": "enforcement",
+      "title": "Исполнительные производства",
+      "impact": 0,
+      "value": "нет",
+      "client_explanation": "Открытых исполнительных производств нет."
+    },
+    {
+      "code": "expense_ratio",
+      "title": "Расходы к выручке",
+      "impact": 0,
+      "value": "0.44",
+      "client_explanation": "Расходы занимают обычную долю выручки."
     }
   ],
   "warnings": [],
@@ -94,7 +150,7 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 }
 ```
 
-## ООО «Вектор»: крупная сумма (`demo-manual`): 35 баллов, грейд D
+## ООО «Вектор»: крупная сумма (`demo-manual`): 70 баллов, грейд B
 
 Заявка: working-capital, 8 000 000 ₽ на 24 мес.
 
@@ -107,31 +163,59 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 ```json
 {
   "request_id": "00000000-0000-4000-8000-000000000903",
-  "model_version": "rules-0.2",
-  "score": 35,
-  "risk_grade": "D",
-  "probability_of_default": null,
+  "model_version": "rules-0.3",
+  "score": 70,
+  "risk_grade": "B",
+  "probability_of_default": 0.11,
   "factors": [
     {
-      "code": "factor_debt_load",
-      "title": "Кредитная нагрузка",
-      "impact": -20,
-      "value": "120%",
-      "client_explanation": "Платежи по кредитам, включая новый, занимают слишком большую часть прибыли"
+      "code": "debt_load",
+      "title": "Долговая нагрузка",
+      "impact": -25,
+      "value": "1.20",
+      "client_explanation": "Платежи по кредитам с учётом нового займа занимают слишком большую часть прибыли."
     },
     {
-      "code": "factor_business_age",
+      "code": "credit_history",
+      "title": "Кредитная история",
+      "impact": 15,
+      "value": "без просрочек",
+      "client_explanation": "Просрочек по кредитам за два года нет."
+    },
+    {
+      "code": "revenue_to_amount",
+      "title": "Выручка к сумме кредита",
+      "impact": 15,
+      "value": "22.5x",
+      "client_explanation": "Запрошенная сумма небольшая относительно годовой выручки."
+    },
+    {
+      "code": "business_age",
       "title": "Возраст бизнеса",
       "impact": 10,
-      "value": "121 мес.",
-      "client_explanation": "Бизнесу больше трёх лет, это снижает риск"
+      "value": "10 г. 1 мес.",
+      "client_explanation": "Компания работает больше трёх лет, это снижает риск."
     },
     {
-      "code": "factor_expense_ratio",
+      "code": "tax_debt",
+      "title": "Налоговая задолженность",
+      "impact": 5,
+      "value": "нет",
+      "client_explanation": "Задолженности перед налоговой нет."
+    },
+    {
+      "code": "enforcement",
+      "title": "Исполнительные производства",
+      "impact": 0,
+      "value": "нет",
+      "client_explanation": "Открытых исполнительных производств нет."
+    },
+    {
+      "code": "expense_ratio",
       "title": "Расходы к выручке",
-      "impact": -5,
-      "value": "89%",
-      "client_explanation": "Расходы занимают значительную часть выручки"
+      "impact": 0,
+      "value": "0.89",
+      "client_explanation": "Расходы занимают обычную долю выручки."
     }
   ],
   "warnings": [],
@@ -139,7 +223,7 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 }
 ```
 
-## ООО «Закат»: просрочки и налоговая задолженность (`demo-bad`): 20 баллов, грейд E
+## ООО «Закат»: просрочки и налоговая задолженность (`demo-bad`): 0 баллов, грейд E
 
 Заявка: express, 500 000 ₽ на 6 мес.
 
@@ -152,31 +236,59 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 ```json
 {
   "request_id": "00000000-0000-4000-8000-000000000904",
-  "model_version": "rules-0.2",
-  "score": 20,
+  "model_version": "rules-0.3",
+  "score": 0,
   "risk_grade": "E",
-  "probability_of_default": null,
+  "probability_of_default": 0.32,
   "factors": [
     {
-      "code": "factor_expense_ratio",
-      "title": "Расходы к выручке",
-      "impact": -20,
-      "value": "99%",
-      "client_explanation": "Расходы почти равны выручке или превышают её"
+      "code": "credit_history",
+      "title": "Кредитная история",
+      "impact": -30,
+      "value": "просрочка 95 дн.",
+      "client_explanation": "В кредитной истории есть длительные просрочки или списания."
     },
     {
-      "code": "factor_debt_load",
-      "title": "Кредитная нагрузка",
-      "impact": -20,
-      "value": "8268%",
-      "client_explanation": "Платежи по кредитам, включая новый, занимают слишком большую часть прибыли"
+      "code": "tax_debt",
+      "title": "Налоговая задолженность",
+      "impact": -30,
+      "value": "700 000 ₽",
+      "client_explanation": "Есть налоговая задолженность и заблокированные счета."
     },
     {
-      "code": "factor_business_age",
+      "code": "debt_load",
+      "title": "Долговая нагрузка",
+      "impact": -25,
+      "value": "прибыль отсутствует",
+      "client_explanation": "Платежи по кредитам с учётом нового займа занимают слишком большую часть прибыли."
+    },
+    {
+      "code": "revenue_to_amount",
+      "title": "Выручка к сумме кредита",
+      "impact": 15,
+      "value": "28.0x",
+      "client_explanation": "Запрошенная сумма небольшая относительно годовой выручки."
+    },
+    {
+      "code": "business_age",
       "title": "Возраст бизнеса",
       "impact": 10,
-      "value": "80 мес.",
-      "client_explanation": "Бизнесу больше трёх лет, это снижает риск"
+      "value": "6 г. 8 мес.",
+      "client_explanation": "Компания работает больше трёх лет, это снижает риск."
+    },
+    {
+      "code": "enforcement",
+      "title": "Исполнительные производства",
+      "impact": -10,
+      "value": "2 на 1 400 000 ₽",
+      "client_explanation": "Есть открытые исполнительные производства."
+    },
+    {
+      "code": "expense_ratio",
+      "title": "Расходы к выручке",
+      "impact": -10,
+      "value": "0.99",
+      "client_explanation": "Расходы забирают почти всю выручку, запас прочности небольшой."
     }
   ],
   "warnings": [],
@@ -184,7 +296,7 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 }
 ```
 
-## ИП Петрова: бизнесу 4 месяца, нет расходов и прибыли (`demo-new`): 40 баллов, грейд D
+## ИП Петрова: бизнесу 4 месяца, нет расходов и прибыли (`demo-new`): 25 баллов, грейд E
 
 Заявка: express, 300 000 ₽ на 12 мес.
 В демо такой запрос не отправляется: возраст бизнеса 4 мес., для продукта нужно не менее 6.
@@ -198,45 +310,62 @@ curl -s -X POST http://localhost:8000/api/v1/score -H 'Content-Type: application
 ```json
 {
   "request_id": "00000000-0000-4000-8000-000000000905",
-  "model_version": "rules-0.2",
-  "score": 40,
-  "risk_grade": "D",
-  "probability_of_default": null,
+  "model_version": "rules-0.3",
+  "score": 25,
+  "risk_grade": "E",
+  "probability_of_default": 0.245,
   "factors": [
     {
-      "code": "factor_insufficient_data",
-      "title": "Достаточность данных",
-      "impact": -10,
-      "value": "не хватает: expenses_rub",
-      "client_explanation": "Для автоматической оценки не хватает данных, заявку рассмотрит менеджер"
+      "code": "debt_load",
+      "title": "Долговая нагрузка",
+      "impact": -25,
+      "value": "2.82",
+      "client_explanation": "Платежи по кредитам с учётом нового займа занимают слишком большую часть прибыли."
     },
     {
-      "code": "factor_expense_ratio",
-      "title": "Расходы к выручке",
-      "impact": 0,
-      "value": "нет данных",
-      "client_explanation": "Не хватает данных о выручке или расходах"
-    },
-    {
-      "code": "factor_debt_load",
-      "title": "Кредитная нагрузка",
-      "impact": 0,
-      "value": "нет данных",
-      "client_explanation": "Пока не хватает данных, поэтому этот показатель в оценке не учтён"
-    },
-    {
-      "code": "factor_business_age",
+      "code": "business_age",
       "title": "Возраст бизнеса",
-      "impact": 0,
+      "impact": -20,
       "value": "4 мес.",
-      "client_explanation": "Пока не хватает данных, поэтому возраст бизнеса в оценке не учтён"
+      "client_explanation": "Бизнес молодой, банк относится к таким заявкам осторожнее."
+    },
+    {
+      "code": "revenue_to_amount",
+      "title": "Выручка к сумме кредита",
+      "impact": 15,
+      "value": "4.0x",
+      "client_explanation": "Запрошенная сумма небольшая относительно годовой выручки."
+    },
+    {
+      "code": "tax_debt",
+      "title": "Налоговая задолженность",
+      "impact": 5,
+      "value": "нет",
+      "client_explanation": "Задолженности перед налоговой нет."
+    },
+    {
+      "code": "credit_history",
+      "title": "Кредитная история",
+      "impact": 0,
+      "value": "нет истории",
+      "client_explanation": "Кредитной истории пока нет, это не плюс и не минус."
+    },
+    {
+      "code": "enforcement",
+      "title": "Исполнительные производства",
+      "impact": 0,
+      "value": "нет",
+      "client_explanation": "Открытых исполнительных производств нет."
     }
   ],
   "warnings": [
-    "insufficient_data"
+    "expenses_missing",
+    "net_profit_missing"
   ],
   "missing_data": [
-    "company.financials.expenses_rub"
+    "company.financials.expenses_rub",
+    "company.financials.net_profit_rub",
+    "checks.fns.reported_revenue_rub"
   ]
 }
 ```

@@ -1,8 +1,8 @@
 {
   "meta": {
-    "status": "DRAFT: пороги и баллы не согласованы с продактом",
+    "status": "rules-0.3",
     "contract": "docs/scoring-contract.md в репозитории backend (POST /api/v1/score)",
-    "note": "expected считался независимым кодом, не самим сервисом; факторы сверяются по impact"
+    "note": "Синтетические примеры: четыре сценария по три. expected посчитан копией C# с правками rules-0.3 (scripts/backend_reference.py, agreed=True), а не сервисом; факторы сверяются по impact. В сценарии missing_data только те пропуски, которые backend может прислать: расходы, прибыль, блоки проверок."
   },
   "samples": [
     {
@@ -77,13 +77,18 @@
         }
       },
       "expected": {
-        "score": 95,
+        "score": 100,
         "risk_grade": "A",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": 15,
-          "factor_debt_load": 20
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "debt_load": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -159,13 +164,18 @@
         }
       },
       "expected": {
-        "score": 95,
+        "score": 100,
         "risk_grade": "A",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": 15,
-          "factor_debt_load": 20
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "debt_load": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -241,13 +251,18 @@
         }
       },
       "expected": {
-        "score": 95,
+        "score": 100,
         "risk_grade": "A",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": 15,
-          "factor_debt_load": 20
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "debt_load": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -323,13 +338,18 @@
         }
       },
       "expected": {
-        "score": 25,
-        "risk_grade": "E",
+        "score": 70,
+        "risk_grade": "B",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 0,
-          "factor_expense_ratio": -5,
-          "factor_debt_load": -20
+          "debt_load": -25,
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -405,13 +425,18 @@
         }
       },
       "expected": {
-        "score": 35,
-        "risk_grade": "D",
+        "score": 70,
+        "risk_grade": "B",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": -5,
-          "factor_debt_load": -20
+          "debt_load": -25,
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -487,13 +512,18 @@
         }
       },
       "expected": {
-        "score": 65,
+        "score": 75,
         "risk_grade": "B",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 0,
-          "factor_expense_ratio": 15,
-          "factor_debt_load": 0
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "debt_load": -10,
+          "tax_debt": 5,
+          "business_age": 0,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -560,16 +590,24 @@
         }
       },
       "expected": {
-        "score": 40,
-        "risk_grade": "D",
+        "score": 25,
+        "risk_grade": "E",
         "missing_data": [
-          "company.financials.expenses_rub"
+          "company.financials.expenses_rub",
+          "company.financials.net_profit_rub",
+          "checks.credit_bureau"
+        ],
+        "warnings": [
+          "expenses_missing",
+          "net_profit_missing",
+          "credit_bureau_missing"
         ],
         "factor_impacts": {
-          "factor_insufficient_data": -10,
-          "factor_expense_ratio": 0,
-          "factor_business_age": 0,
-          "factor_debt_load": 0
+          "debt_load": -25,
+          "business_age": -20,
+          "revenue_to_amount": 15,
+          "tax_debt": 5,
+          "enforcement": 0
         }
       }
     },
@@ -608,8 +646,8 @@
             "period_months": 12,
             "revenue_rub": 18000000,
             "expenses_rub": null,
-            "net_profit_rub": null,
-            "monthly_debt_payments_rub": null
+            "net_profit_rub": 2500000,
+            "monthly_debt_payments_rub": 50000
           },
           "history": {
             "previous_applications": 0,
@@ -623,11 +661,7 @@
             "head_disqualified": false,
             "mass_address": false
           },
-          "fns": {
-            "tax_debt_rub": 0,
-            "has_blocked_accounts": false,
-            "reported_revenue_rub": 18000000
-          },
+          "fns": null,
           "credit_bureau": {
             "credit_history_months": 36,
             "active_loans": 1,
@@ -645,17 +679,22 @@
         }
       },
       "expected": {
-        "score": 40,
-        "risk_grade": "D",
+        "score": 70,
+        "risk_grade": "B",
         "missing_data": [
           "company.financials.expenses_rub",
-          "company.financials.monthly_debt_payments_rub"
+          "checks.fns"
+        ],
+        "warnings": [
+          "expenses_missing",
+          "fns_missing"
         ],
         "factor_impacts": {
-          "factor_insufficient_data": -10,
-          "factor_expense_ratio": 0,
-          "factor_business_age": 0,
-          "factor_debt_load": 0
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "debt_load": -10,
+          "business_age": 0,
+          "enforcement": 0
         }
       }
     },
@@ -692,10 +731,10 @@
           "employees_count": 12,
           "financials": {
             "period_months": 12,
-            "revenue_rub": null,
-            "expenses_rub": null,
+            "revenue_rub": 12000000,
+            "expenses_rub": 9000000,
             "net_profit_rub": null,
-            "monthly_debt_payments_rub": null
+            "monthly_debt_payments_rub": 30000
           },
           "history": {
             "previous_applications": 0,
@@ -711,18 +750,26 @@
         }
       },
       "expected": {
-        "score": 40,
-        "risk_grade": "D",
+        "score": 65,
+        "risk_grade": "B",
         "missing_data": [
-          "company.financials.revenue_rub",
-          "company.financials.expenses_rub",
-          "company.financials.monthly_debt_payments_rub"
+          "company.financials.net_profit_rub",
+          "checks.egrul",
+          "checks.fns",
+          "checks.credit_bureau",
+          "checks.fssp"
+        ],
+        "warnings": [
+          "net_profit_missing",
+          "credit_bureau_missing",
+          "fns_missing",
+          "fssp_missing"
         ],
         "factor_impacts": {
-          "factor_insufficient_data": -10,
-          "factor_expense_ratio": 0,
-          "factor_business_age": 0,
-          "factor_debt_load": 0
+          "revenue_to_amount": 15,
+          "business_age": 0,
+          "debt_load": 0,
+          "expense_ratio": 0
         }
       }
     },
@@ -798,13 +845,18 @@
         }
       },
       "expected": {
-        "score": 20,
-        "risk_grade": "E",
+        "score": 60,
+        "risk_grade": "C",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": -20,
-          "factor_debt_load": -20
+          "debt_load": -25,
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "expense_ratio": -10,
+          "tax_debt": 5,
+          "enforcement": 0
         }
       }
     },
@@ -880,13 +932,18 @@
         }
       },
       "expected": {
-        "score": 0,
-        "risk_grade": "E",
+        "score": 50,
+        "risk_grade": "C",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 0,
-          "factor_expense_ratio": -20,
-          "factor_debt_load": -35
+          "debt_load": -25,
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "expense_ratio": -10,
+          "tax_debt": 5,
+          "business_age": 0,
+          "enforcement": 0
         }
       }
     },
@@ -962,13 +1019,18 @@
         }
       },
       "expected": {
-        "score": 75,
-        "risk_grade": "B",
+        "score": 100,
+        "risk_grade": "A",
         "missing_data": [],
+        "warnings": [],
         "factor_impacts": {
-          "factor_business_age": 10,
-          "factor_expense_ratio": -5,
-          "factor_debt_load": 20
+          "credit_history": 15,
+          "revenue_to_amount": 15,
+          "business_age": 10,
+          "debt_load": 10,
+          "tax_debt": 5,
+          "enforcement": 0,
+          "expense_ratio": 0
         }
       }
     }

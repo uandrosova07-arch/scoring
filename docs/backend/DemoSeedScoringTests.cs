@@ -18,8 +18,10 @@ namespace AlfaCredit.UnitTests.Processing;
 /// <summary>
 /// Сверка с сервисом скоринга (репозиторий scoring: docs/grade-comparison.md, data/demo_companies.json).
 /// Демо-заявки общего сценария на данных seed: запрос к скорингу, резервные правила rules-v1 и решение кредитной политики
-/// при ответе Python (rules-0.2) и при откате на встроенные правила. Если тест упал, изменились seed, правила или политика:
-/// сообщите команде скоринга, таблицу сравнения нужно пересобрать (python scripts/demo_comparison.py build).
+/// при ответе Python и при откате на встроенные правила. Версия для rules-0.3: запускать после того, как в RuleBasedScoringService
+/// внесены правки rules-0.3 (docs/backend/RuleBasedScoringService.rules-0.3.cs); версию для rules-v1 бэкендер уже прогнал.
+/// Если тест упал, изменились seed, правила или политика: сообщите команде скоринга, данные нужно пересобрать
+/// (python scripts/demo_comparison.py build и python scripts/conformance.py build).
 /// </summary>
 public sealed class DemoSeedScoringTests
 {
@@ -45,10 +47,10 @@ public sealed class DemoSeedScoringTests
     }
 
     [Theory]
-    [InlineData("client_good", "working-capital", 1_500_000, 12, 91, 138_593, 95, "A", "credit_history:15,revenue_to_amount:15,business_age:10,tax_debt:5,debt_load:0,enforcement:0")]
-    [InlineData("client_medium", "working-capital", 3_000_000, 24, 40, 151_956, 55, "C", "business_age:10,credit_history:-5,revenue_to_amount:5,tax_debt:-5,debt_load:0,enforcement:0")]
-    [InlineData("client_manual", "working-capital", 8_000_000, 24, 121, 405_215, 70, "B", "debt_load:-25,credit_history:15,revenue_to_amount:15,business_age:10,tax_debt:5,enforcement:0")]
-    [InlineData("client_bad", "express", 500_000, 6, 80, 89_012, 0, "E", "credit_history:-30,tax_debt:-30,debt_load:-25,revenue_to_amount:15,business_age:10,enforcement:-10")]
+    [InlineData("client_good", "working-capital", 1_500_000, 12, 91, 138_593, 95, "A", "credit_history:15,revenue_to_amount:15,business_age:10,tax_debt:5,debt_load:0,enforcement:0,expense_ratio:0")]
+    [InlineData("client_medium", "working-capital", 3_000_000, 24, 40, 151_956, 55, "C", "business_age:10,credit_history:-5,revenue_to_amount:5,tax_debt:-5,debt_load:0,enforcement:0,expense_ratio:0")]
+    [InlineData("client_manual", "working-capital", 8_000_000, 24, 121, 405_215, 70, "B", "debt_load:-25,credit_history:15,revenue_to_amount:15,business_age:10,tax_debt:5,enforcement:0,expense_ratio:0")]
+    [InlineData("client_bad", "express", 500_000, 6, 80, 89_012, 0, "E", "credit_history:-30,tax_debt:-30,debt_load:-25,revenue_to_amount:15,business_age:10,enforcement:-10,expense_ratio:-10")]
     public void Fallback_rules_on_seed_demo_application(string login, string productCode, int amount, int termMonths, int ageMonths, int payment, int score, string grade, string factors)
     {
         var (_, request) = Build(login, productCode, amount, termMonths);
@@ -64,15 +66,16 @@ public sealed class DemoSeedScoringTests
         outcome.Warnings.ShouldBeEmpty();
     }
 
-    // source: python — балл и грейд, которые сервис scoring (rules-0.2) возвращает на этот же запрос; rules — резервные правила.
+    // source: python — балл и грейд, которые сервис scoring (rules-0.3) возвращает на этот же запрос; rules — резервные правила.
+    // С rules-0.3 они совпадают, поэтому и решение одно и то же.
     [Theory]
-    [InlineData("python", "client_good", "working-capital", 1_500_000, 12, 55, "C", "ApprovedWithConditions", null, 1_500_000d, 22.5, 140_752.78)]
+    [InlineData("python", "client_good", "working-capital", 1_500_000, 12, 95, "A", "Approved", null, 1_500_000d, 19.5, 138_593.06)]
     [InlineData("rules", "client_good", "working-capital", 1_500_000, 12, 95, "A", "Approved", null, 1_500_000d, 19.5, 138_593.06)]
-    [InlineData("python", "client_medium", "working-capital", 3_000_000, 24, 75, "B", "Approved", null, 3_000_000d, 21d, 154_156.95)]
+    [InlineData("python", "client_medium", "working-capital", 3_000_000, 24, 55, "C", "ApprovedWithConditions", null, 2_400_000d, 22.5, 125_100.96)]
     [InlineData("rules", "client_medium", "working-capital", 3_000_000, 24, 55, "C", "ApprovedWithConditions", null, 2_400_000d, 22.5, 125_100.96)]
-    [InlineData("python", "client_manual", "working-capital", 8_000_000, 24, 35, "D", "ManualReview", "ApprovedWithConditions", null, null, null)]
+    [InlineData("python", "client_manual", "working-capital", 8_000_000, 24, 70, "B", "ManualReview", "Approved", null, null, null)]
     [InlineData("rules", "client_manual", "working-capital", 8_000_000, 24, 70, "B", "ManualReview", "Approved", null, null, null)]
-    [InlineData("python", "client_bad", "express", 500_000, 6, 20, "E", "Rejected", null, null, null, null)]
+    [InlineData("python", "client_bad", "express", 500_000, 6, 0, "E", "Rejected", null, null, null, null)]
     [InlineData("rules", "client_bad", "express", 500_000, 6, 0, "E", "Rejected", null, null, null, null)]
     public void Policy_outcome_with_python_and_fallback_grades(
         string source,
@@ -128,7 +131,7 @@ public sealed class DemoSeedScoringTests
         payment.ShouldBe(28_223);
         outcome.Score.ShouldBe(25);
         outcome.Grade.ShouldBe(RiskGrade.E);
-        outcome.Warnings.ShouldHaveSingleItem().ShouldBe("net_profit_missing");
+        string.Join(",", outcome.Warnings).ShouldBe("expenses_missing,net_profit_missing");
     }
 
     /// <summary>Заявка как в DbSeeder и ApplicationService: компания и продукт из seed, проверки как у симуляторов.</summary>

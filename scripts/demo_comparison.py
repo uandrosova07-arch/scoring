@@ -6,8 +6,8 @@
     python scripts/demo_comparison.py examples адрес   # пересобрать docs/score-examples.md по ответам сервиса
 
 Данные компаний, продукты, суммы и сроки берутся из scripts/backend_reference.py (копия seed и правил backend).
-Ожидаемый ответ Python считается здесь независимо от app/rules.py, по описанию в docs/calculation.md:
-тесты сверяют с ним настоящий сервис. Дата расчёта зафиксирована (AS_OF), поэтому возраст бизнеса и все
+Ожидаемый ответ Python (rules-0.3) считается копией C# с согласованными правками, независимо от app/rules.py:
+тесты сверяют с ним настоящий сервис. Столбец csharp_fallback: код backend как есть (rules-v1). Дата расчёта зафиксирована (AS_OF), поэтому возраст бизнеса и все
 результаты воспроизводимы. Только стандартная библиотека.
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ EXAMPLES_FILE = ROOT / "docs" / "score-examples.md"
 
 AS_OF = date(2026, 10, 23)
 CREATED_AT = "2026-10-23T09:00:00Z"
-PYTHON_MODEL_VERSION = "rules-0.2"
+PYTHON_MODEL_VERSION = "rules-0.3"
 
 TITLES = {
     "demo-good": "ООО «Ромашка»: стабильный бизнес",
@@ -40,59 +40,18 @@ TITLES = {
 }
 
 
-# ---------------------------------------------------------------- независимый расчёт rules-0.2 (docs/calculation.md)
-
-def _pct(x: float) -> str:
-    return f"{int(x * 100 + 0.5)}%"
-
+# ---------------------------------------------------------------- ожидаемый ответ Python (rules-0.3)
 
 def python_expected(req: dict) -> dict:
-    app, company, checks = req["application"], req["company"], req.get("checks")
-    fin = company.get("financials") or {}
-    rev, exp, net, debt = (fin.get(k) for k in ("revenue_rub", "expenses_rub", "net_profit_rub", "monthly_debt_payments_rub"))
-    age = company.get("business_age_months")
-    missing = [f"company.financials.{k}" for k, v in
-               (("revenue_rub", rev), ("expenses_rub", exp), ("monthly_debt_payments_rub", debt)) if v is None]
-    insufficient = bool(missing)
-
-    ratio = exp / rev if rev is not None and exp is not None else None
-    if ratio is None:
-        expense = ("factor_expense_ratio", 0, "нет данных")
-    else:
-        expense = ("factor_expense_ratio", 0 if insufficient else 15 if ratio < 0.70 else -5 if ratio <= 0.90 else -20, _pct(ratio))
-
-    if age is None:
-        age_f = ("factor_business_age", 0, "нет данных")
-    else:
-        age_f = ("factor_business_age", 0 if insufficient else -20 if age < 6 else -10 if age < 12 else 0 if age <= 36 else 10, f"{age} мес.")
-
-    if insufficient:
-        factors = [expense, age_f,
-                   ("factor_insufficient_data", -10, "не хватает: " + ", ".join(m.split(".")[-1] for m in missing)),
-                   ("factor_debt_load", 0, "нет данных")]
-        score = 40
-    else:
-        profit = net if net is not None else rev - exp
-        if profit <= 0:
-            debt_f = ("factor_debt_load", -35, "нет прибыли")
-        else:
-            new = app.get("estimated_monthly_payment_rub")
-            new = app["amount_rub"] / app["term_months"] if new is None else new
-            load = (debt + new) / (profit / 12)
-            debt_f = ("factor_debt_load", 20 if load < 0.30 else 0 if load <= 0.70 else -20, _pct(load))
-        factors = [expense, age_f, debt_f]
-        score = max(0, min(100, 50 + sum(f[1] for f in factors)))
-
-    order = {"factor_expense_ratio": 0, "factor_debt_load": 1, "factor_business_age": 2, "factor_insufficient_data": 3}
-    factors.sort(key=lambda f: (-abs(f[1]), order[f[0]]))
-    warnings = (["insufficient_data"] if insufficient else []) + (["business_age_missing"] if age is None else [])
-    warnings += [f"{n}_missing" for n in ("egrul", "fns", "credit_bureau", "fssp") if checks is None or checks.get(n) is None]
+    """Ответ, который должен дать сервис: копия C# с правками rules-0.3 (не app/rules.py), см. scripts/backend_reference.py."""
+    r = br.score_rules_v1(req, agreed=True)
     return {
-        "score": score,
-        "risk_grade": br.grade_for(score),
-        "missing_data": missing,
-        "warnings": warnings,
-        "factors": [{"code": c, "impact": i, "value": v} for c, i, v in factors],
+        "score": r["score"],
+        "risk_grade": r["risk_grade"],
+        "probability_of_default": float(r["probability_of_default"]),
+        "missing_data": r["missing_data"],
+        "warnings": r["warnings"],
+        "factors": [{"code": f["code"], "impact": f["impact"], "value": f["value"]} for f in r["factors"]],
     }
 
 
@@ -143,8 +102,8 @@ def build_all() -> tuple[dict, dict[str, dict]]:
             "input": req,
             "expected": py,
             "csharp_fallback": {
-                "source": f"rules-v1, перенос кода backend {br.BACKEND_COMMIT} (scripts/backend_reference.py); "
-                          "подтверждается тестом docs/backend/DemoSeedScoringTests.cs",
+                "source": f"rules-v1: код backend {br.BACKEND_COMMIT} до правок rules-0.3 (scripts/backend_reference.py), "
+                          "подтверждён бэкендером тестом DemoSeedScoringTests",
                 "score": cs["score"], "risk_grade": cs["risk_grade"],
                 "probability_of_default": float(cs["probability_of_default"]),
                 "factors": cs_factors, "warnings": cs["warnings"], "missing_data": cs["missing_data"],
@@ -155,14 +114,15 @@ def build_all() -> tuple[dict, dict[str, dict]]:
             },
         })
     meta = {
-        "status": "Данные seed backend; баллы и пороги rules-0.2 не менялись и не согласованы",
+        "status": "rules-0.3: факторы и пороги резервных C#-правил плюс согласуемое правило для расходов",
         "backend_commit": br.BACKEND_COMMIT,
         "as_of": AS_OF.isoformat(),
         "contract": "POST /api/v1/score, docs/scoring-contract.md в репозитории backend",
         "model_version": PYTHON_MODEL_VERSION,
         "note": "Собрано scripts/demo_comparison.py build. input: запрос ровно в том виде, как его отправит backend "
                 "(SeedData.cs, KnownProfiles.cs, продукт, сумма и срок из общего демо, возраст бизнеса на as_of). "
-                "expected: ответ Python, посчитанный независимо от app/rules.py. csharp_fallback: резервные правила backend. "
+                "expected: ответ Python rules-0.3, посчитанный копией C# с правками rules-0.3, а не сервисом. "
+                "csharp_fallback: текущие резервные правила backend (rules-v1). "
                 "decision: решение кредитной политики backend при каждом из двух ответов.",
     }
     return {"meta": meta, "companies": companies}, requests

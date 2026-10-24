@@ -1,0 +1,60 @@
+# rules-0.3 на стороне backend
+
+Сервис scoring уже считает по `rules-0.3`. Чтобы резервные правила backend давали тот же результат на любых входах,
+в C# нужны правки ниже. Спецификация: [../calculation.md](../calculation.md), результаты сверки: [../grade-comparison.md](../grade-comparison.md).
+
+## 1. Правки кода
+
+`src/AlfaCredit.Core/Features/Scoring/RuleBasedScoringService.cs` заменить на [RuleBasedScoringService.rules-0.3.cs](RuleBasedScoringService.rules-0.3.cs).
+Отличия от `rules-v1` помечены в файле комментарием `rules-0.3`:
+
+| Что | Было (`rules-v1`) | Стало (`rules-0.3`) |
+|---|---|---|
+| Версия | `rules-v1` | `rules-0.3`, как у сервиса |
+| Фактор `expense_ratio` | нет | расходы / выручка > 0,90: −10, иначе 0; нет расходов: фактора нет, предупреждение `expenses_missing` |
+| Чистая прибыль не пришла | 10 % выручки | выручка − расходы; 10 % выручки, только если нет и расходов |
+| Формула нагрузки | `платежи / (прибыль / 12)` | `платежи * 12 / прибыль`: одно деление, без округления на границах |
+| Значения факторов | текущая культура (`0,48` на ru-RU) | инвариантная культура (`0.48`) |
+| Сортировка факторов при равном вкладе | `ThenBy(Code)` с культурой | `ThenBy(Code, StringComparer.Ordinal)` |
+
+`DecisionPolicy`, `HttpScoringService`, контракт запроса и ответа без изменений.
+
+## 2. Тесты
+
+1. Скопировать эталон: `data/conformance/rules-0.3.json` → `tests/AlfaCredit.UnitTests/Scoring/conformance-rules-0.3.json`
+   и подключить его в `tests/AlfaCredit.UnitTests/AlfaCredit.UnitTests.csproj`:
+
+   ```xml
+   <ItemGroup>
+     <None Include="Scoring/conformance-rules-0.3.json" CopyToOutputDirectory="PreserveNewest" />
+   </ItemGroup>
+   ```
+
+2. Добавить [ScoringConformanceTests.cs](ScoringConformanceTests.cs) и заменить `DemoSeedScoringTests.cs` версией из этой папки
+   (в `tests/AlfaCredit.UnitTests/Processing/`).
+3. В `tests/AlfaCredit.IntegrationTests/Endpoints/ExternalScoringTests.cs` (строка 78) ожидать `RuleBasedScoringService.ModelVersion`
+   вместо строки `"rules-v1"`.
+4. Запуск без установленного .NET:
+
+   ```bash
+   docker run --rm -v "$PWD":/src -w /src mcr.microsoft.com/dotnet/sdk:10.0 dotnet test tests/AlfaCredit.UnitTests
+   ```
+
+Остальные тесты backend на эти правки не завязаны: «Ромашка» остаётся 95 / A, «Кузнецов» 55 / C, «Закат» E,
+у «Вектора» рекомендация «одобрить».
+
+## 3. Документация backend
+
+- `docs/scoring-contract.md`: коды факторов без префикса (`business_age`, `revenue_to_amount`, `expense_ratio`, `debt_load`,
+  `credit_history`, `tax_debt`, `enforcement`, `collateral`); факторов 3–8 (восьмой только при залоге);
+  `probability_of_default` сервис возвращает по той же формуле, что backend; обязательные поля (не `null`): `revenue_rub`,
+  `monthly_debt_payments_rub`, `business_age_months`, `estimated_monthly_payment_rub`; при откате `model_version = rules-0.3`.
+- `docs/decision-logic.md`: в таблицу балльной модели добавить строку «Расходы к выручке» и правило прибыли без `net_profit_rub`.
+- Заглушка `scoring/app.py` (`stub-rules-1.0`) повторяет `rules-v1`: заменить её сервисом scoring
+  (`docs/backend/compose.scoring.yml`) или удалить, чтобы в стенде не было третьей версии правил.
+
+## 4. Как не разойтись дальше
+
+Любое изменение факторов, порогов, текстов или обработки пропусков делается одновременно в обоих репозиториях:
+новая версия (`rules-0.4`), пересборка эталона `python scripts/conformance.py build` в scoring, копия файла в backend,
+зелёные `tests/test_conformance.py` и `ScoringConformanceTests` с обеих сторон.

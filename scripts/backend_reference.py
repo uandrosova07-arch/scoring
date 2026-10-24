@@ -30,6 +30,8 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Context, Decimal, localconte
 
 BACKEND_COMMIT = "9f18dd4"
 RULES_MODEL_VERSION = "rules-v1"
+# Согласуемая версия: rules-v1 плюс правило для расходов и нагрузка одним делением (docs/backend/RuleBasedScoringService.rules-0.3.cs).
+AGREED_MODEL_VERSION = "rules-0.3"
 D = Decimal
 
 
@@ -340,8 +342,14 @@ def _dec(x) -> Decimal:
     return x if isinstance(x, Decimal) else D(str(x))
 
 
-def score_rules_v1(req: dict) -> dict:
-    """Встроенная балльная модель backend. Вход: запрос в формате контракта (как его собирает backend)."""
+def score_rules_v1(req: dict, agreed: bool = False) -> dict:
+    """Встроенная балльная модель backend. Вход: запрос в формате контракта (как его собирает backend).
+
+    agreed=False: код backend как есть (rules-v1, подтверждён тестами backend).
+    agreed=True: тот же код с правками rules-0.3, которые предлагаем внести в C#: фактор expense_ratio
+    (расходы > 90 % выручки: −10), прибыль без net_profit = выручка − расходы, нагрузка = платежи * 12 / годовая прибыль,
+    значения в инвариантной культуре.
+    """
     with localcontext() as ctx:
         ctx.prec = 28  # точность decimal в C#
         factors, warnings = [], []
@@ -362,13 +370,32 @@ def score_rules_v1(req: dict) -> dict:
                         "Запрошенная сумма небольшая относительно годовой выручки." if ratio_impact > 0
                         else "Запрошенная сумма велика относительно годовой выручки."))
 
-        if fin["net_profit_rub"] is not None:
-            monthly_profit = _dec(fin["net_profit_rub"]) / 12
-        else:
-            monthly_profit = revenue * D("0.10") / 12
-            warnings.append("net_profit_missing")
+        expenses = None if fin.get("expenses_rub") is None else _dec(fin["expenses_rub"])
+        if agreed:
+            if expenses is None:
+                warnings.append("expenses_missing")
+            elif revenue > 0:
+                exp_ratio = expenses / revenue
+                exp_impact = -10 if exp_ratio > D("0.9") else 0
+                factors.append(("expense_ratio", "Расходы к выручке", exp_impact, _fmt(exp_ratio, 2),
+                                "Расходы забирают почти всю выручку, запас прочности небольшой." if exp_impact < 0
+                                else "Расходы занимают обычную долю выручки."))
+
         total_payments = _dec(fin["monthly_debt_payments_rub"]) + _dec(app["estimated_monthly_payment_rub"])
-        load = D("9.99") if monthly_profit <= 0 else total_payments / monthly_profit
+        if agreed:
+            if fin["net_profit_rub"] is not None:
+                annual_profit = _dec(fin["net_profit_rub"])
+            else:
+                annual_profit = revenue - expenses if expenses is not None else revenue * D("0.10")
+                warnings.append("net_profit_missing")
+            load = D("9.99") if annual_profit <= 0 else total_payments * 12 / annual_profit
+        else:
+            if fin["net_profit_rub"] is not None:
+                monthly_profit = _dec(fin["net_profit_rub"]) / 12
+            else:
+                monthly_profit = revenue * D("0.10") / 12
+                warnings.append("net_profit_missing")
+            load = D("9.99") if monthly_profit <= 0 else total_payments / monthly_profit
         load_impact = 10 if load < D("0.3") else 0 if load < D("0.5") else -10 if load < D("0.7") else -25
         factors.append(("debt_load", "Долговая нагрузка", load_impact,
                         "прибыль отсутствует" if load >= D("9.99") else _fmt(load, 2),
@@ -429,7 +456,7 @@ def score_rules_v1(req: dict) -> dict:
             "factors": [dict(zip(("code", "title", "impact", "value", "client_explanation"), f)) for f in ordered],
             "warnings": warnings,
             "missing_data": missing_inputs(req),
-            "model_version": RULES_MODEL_VERSION,
+            "model_version": AGREED_MODEL_VERSION if agreed else RULES_MODEL_VERSION,
         }
 
 
