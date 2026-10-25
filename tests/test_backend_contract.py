@@ -11,7 +11,10 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import create_app
+
+# Эти тесты проверяют rules-0.3 (резервные правила backend); logreg-synthetic-0.1 — tests/test_model.py.
+app = create_app("rules-0.3")
 from app.rules import probability_of_default
 
 client = TestClient(app)

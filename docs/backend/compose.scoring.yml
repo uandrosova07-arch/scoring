@@ -10,3 +10,7 @@ services:
       context: ${SCORING_SRC:-../scoring}
       dockerfile: Dockerfile
     image: alfacredit-scoring-rules:local
+    environment:
+      # Пока резервные правила backend = rules-0.3, внешний сервис тоже отвечает rules-0.3 (паритет External/RulesFallback).
+      # logreg-synthetic-0.1 включать после переноса артефакта в backend: SCORING_MODEL=logreg-synthetic-0.1.
+      SCORING_MODEL: ${SCORING_MODEL:-rules-0.3}

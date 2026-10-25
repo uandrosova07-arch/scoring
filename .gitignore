@@ -4,3 +4,6 @@ __pycache__/
 .venv/
 venv/
 .env
+# Синтетическая выборка воспроизводится: python -m ml.generate (seed и sha256 в models/*.metrics.json)
+data/synthetic/
+e2e-results/

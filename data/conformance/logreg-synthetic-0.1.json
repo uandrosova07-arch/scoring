@@ -1,0 +1,4370 @@
+{
+  "meta": {
+    "model_version": "logreg-synthetic-0.1",
+    "tolerance": {
+      "probability_of_default": 1e-09,
+      "logit": 1e-09,
+      "features": 1e-12
+    },
+    "note": "Ожидаемые PD и логит посчитаны sklearn (Pipeline.predict_proba / decision_function), балл и грейд по параметрам артефакта; features — вектор до заполнения пропусков (null = пропуск); factors, warnings и missing_data — ответ сервиса по артефакту. Собрано python -m ml.train."
+  },
+  "score_mapping": [
+    {
+      "probability_of_default": 0.0,
+      "score": 100,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.01,
+      "score": 100,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.02,
+      "score": 100,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.05,
+      "score": 90,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.08,
+      "score": 80,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.0815,
+      "score": 80,
+      "risk_grade": "A"
+    },
+    {
+      "probability_of_default": 0.0816,
+      "score": 79,
+      "risk_grade": "B"
+    },
+    {
+      "probability_of_default": 0.125,
+      "score": 65,
+      "risk_grade": "B"
+    },
+    {
+      "probability_of_default": 0.1265,
+      "score": 65,
+      "risk_grade": "B"
+    },
+    {
+      "probability_of_default": 0.17,
+      "score": 50,
+      "risk_grade": "C"
+    },
+    {
+      "probability_of_default": 0.1715,
+      "score": 50,
+      "risk_grade": "C"
+    },
+    {
+      "probability_of_default": 0.215,
+      "score": 35,
+      "risk_grade": "D"
+    },
+    {
+      "probability_of_default": 0.2165,
+      "score": 35,
+      "risk_grade": "D"
+    },
+    {
+      "probability_of_default": 0.3,
+      "score": 7,
+      "risk_grade": "E"
+    },
+    {
+      "probability_of_default": 0.32,
+      "score": 0,
+      "risk_grade": "E"
+    },
+    {
+      "probability_of_default": 0.5,
+      "score": 0,
+      "risk_grade": "E"
+    },
+    {
+      "probability_of_default": 1.0,
+      "score": 0,
+      "risk_grade": "E"
+    }
+  ],
+  "cases": [
+    {
+      "id": "demo-good",
+      "description": "Демо-заявка: ООО «Ромашка»: стабильный бизнес",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.024780411406947762,
+        "logit": -3.6726091862676142,
+        "score": 98,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "demo-medium",
+      "description": "Демо-заявка: ИП Кузнецов: заметная долговая нагрузка",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000902",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000902",
+          "number": "AC-000902",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 3000000,
+          "term_months": 24,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 151956,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "503212345678",
+          "legal_form": "Ip",
+          "okved": "49.41",
+          "region_code": "50",
+          "registered_at": "2023-06-01",
+          "business_age_months": 40,
+          "tax_regime": "UsnIncome",
+          "employees_count": 5,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 9600000,
+            "expenses_rub": 4200000,
+            "net_profit_rub": 4800000,
+            "monthly_debt_payments_rub": 40000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2023-06-01",
+            "okved": "49.41"
+          },
+          "fns": {
+            "tax_debt_rub": 12000,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 9100000
+          },
+          "credit_bureau": {
+            "credit_history_months": 30,
+            "active_loans": 1,
+            "closed_loans": 1,
+            "total_debt_rub": 900000,
+            "monthly_payments_rub": 40000,
+            "max_overdue_days_24m": 25,
+            "overdue_count_24m": 1,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.009285388897974294,
+        "logit": -4.669984433661349,
+        "score": 100,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 16.077273760604726,
+          "expense_ratio": 0.4375,
+          "profit_margin": 0.5,
+          "debt_load": 0.47989,
+          "amount_to_revenue": 0.3125,
+          "log_amount": 14.914122846632385,
+          "term_months": 24.0,
+          "log_business_age": 3.713572066704308,
+          "overdue_months": 0.8333333333333334,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 9.392745258631441,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": 33,
+            "value": "0.44",
+            "client_explanation": "Доля расходов в выручке снижает расчётный риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 11,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -6,
+            "value": "долг 12 000 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -4,
+            "value": "9.6 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -4,
+            "value": "сумма 0.31 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -3,
+            "value": "просрочка до 25 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "demo-manual",
+      "description": "Демо-заявка: ООО «Вектор»: крупная сумма",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000903",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000903",
+          "number": "AC-000903",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 8000000,
+          "term_months": 24,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 405215,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7812345678",
+          "legal_form": "Ooo",
+          "okved": "25.11",
+          "region_code": "78",
+          "registered_at": "2016-09-20",
+          "business_age_months": 121,
+          "tax_regime": "Osno",
+          "employees_count": 85,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 180000000,
+            "expenses_rub": 160000000,
+            "net_profit_rub": 16000000,
+            "monthly_debt_payments_rub": 1200000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2016-09-20",
+            "okved": "25.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 176000000
+          },
+          "credit_bureau": {
+            "credit_history_months": 96,
+            "active_loans": 3,
+            "closed_loans": 5,
+            "total_debt_rub": 40000000,
+            "monthly_payments_rub": 1200000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.03161953979068873,
+        "logit": -3.421849770162682,
+        "score": 96,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 19.00846741441004,
+          "expense_ratio": 0.8888888888888888,
+          "profit_margin": 0.08888888888888889,
+          "debt_load": 1.20391125,
+          "amount_to_revenue": 0.044444444444444446,
+          "log_amount": 15.89495209964411,
+          "term_months": 24.0,
+          "log_business_age": 4.804021044733257,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 10,
+            "value": "180.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -6,
+            "value": "0.89",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -5,
+            "value": "сумма 0.04 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 4,
+            "value": "121 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "demo-bad",
+      "description": "Демо-заявка: ООО «Закат»: просрочки и налоговая задолженность",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000904",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000904",
+          "number": "AC-000904",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 500000,
+          "term_months": 6,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 89012,
+          "product": {
+            "code": "express",
+            "type": "Express",
+            "base_rate_percent": 23.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 3000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "5401234567",
+          "legal_form": "Ooo",
+          "okved": "56.10",
+          "region_code": "54",
+          "registered_at": "2020-02-14",
+          "business_age_months": 80,
+          "tax_regime": "UsnIncomeExpenses",
+          "employees_count": 12,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 14000000,
+            "expenses_rub": 13900000,
+            "net_profit_rub": 100000,
+            "monthly_debt_payments_rub": 600000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": true,
+            "registered_at": "2020-02-14",
+            "okved": "56.10"
+          },
+          "fns": {
+            "tax_debt_rub": 700000,
+            "has_blocked_accounts": true,
+            "reported_revenue_rub": 13200000
+          },
+          "credit_bureau": {
+            "credit_history_months": 48,
+            "active_loans": 4,
+            "closed_loans": 1,
+            "total_debt_rub": 9000000,
+            "monthly_payments_rub": 600000,
+            "max_overdue_days_24m": 95,
+            "overdue_count_24m": 3,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 2,
+            "open_amount_rub": 1400000
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.9505646466363772,
+        "logit": 2.956390349541218,
+        "score": 0,
+        "risk_grade": "E",
+        "features": {
+          "log_revenue": 16.454567959008102,
+          "expense_ratio": 0.9928571428571429,
+          "profit_margin": 0.007142857142857143,
+          "debt_load": 5.0,
+          "amount_to_revenue": 0.03571428571428571,
+          "log_amount": 13.122363377404328,
+          "term_months": 6.0,
+          "log_business_age": 4.394449154672439,
+          "overdue_months": 3.1666666666666665,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 13.45883704259595,
+          "blocked_accounts": 1.0,
+          "enforcement_count": 2.0,
+          "log_enforcement_amount": 14.151983508870947,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -26,
+            "value": "долг 700 000 ₽, счета заблокированы",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -18,
+            "value": "просрочка до 95 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -18,
+            "value": "82.68",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -17,
+            "value": "2 на 1 400 000 ₽",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -14,
+            "value": "0.99",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 4,
+            "value": "сумма 0.04 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -3,
+            "value": "14.0 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "demo-new",
+      "description": "Демо-заявка: ИП Петрова: бизнесу 4 месяца, нет расходов и прибыли",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000905",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000905",
+          "number": "AC-000905",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 300000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 28223,
+          "product": {
+            "code": "express",
+            "type": "Express",
+            "base_rate_percent": 23.0,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 3000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "772812345678",
+          "legal_form": "Ip",
+          "okved": "96.02",
+          "region_code": "77",
+          "registered_at": "2026-06-15",
+          "business_age_months": 4,
+          "tax_regime": "Patent",
+          "employees_count": 2,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 1200000,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 0
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2026-06-15",
+            "okved": "96.02"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "credit_bureau": {
+            "credit_history_months": 0,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "total_debt_rub": 0,
+            "monthly_payments_rub": 0,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.11811038893718409,
+        "logit": -2.0104472040223706,
+        "score": 67,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 13.997832948091215,
+          "expense_ratio": null,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.25,
+          "log_amount": 12.611537753638338,
+          "term_months": 12.0,
+          "log_business_age": 1.6094379124341003,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 1.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -15,
+            "value": "1.2 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 10,
+            "value": "нет истории",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -8,
+            "value": "4 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 5,
+            "value": "сумма 0.25 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -3,
+            "value": "нет данных",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          }
+        ],
+        "warnings": [
+          "expenses_missing",
+          "net_profit_missing"
+        ],
+        "missing_data": [
+          "company.financials.expenses_rub",
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-A-28173",
+      "description": "Заявка из test, грейд A",
+      "input": {
+        "request_id": "synthetic-28173",
+        "application": {
+          "amount_rub": 4855000.0,
+          "term_months": 18,
+          "estimated_monthly_payment_rub": 318877.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 17,
+          "financials": {
+            "revenue_rub": 31501000.0,
+            "expenses_rub": 26308000.0,
+            "net_profit_rub": 4719000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 0,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 1,
+            "open_amount_rub": 62600.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.06020616405536225,
+        "logit": -2.747885787726798,
+        "score": 87,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.265529881068737,
+          "expense_ratio": 0.8351480905368084,
+          "profit_margin": 0.1498047681025999,
+          "debt_load": 0.8108760330578513,
+          "amount_to_revenue": 0.15412209136217897,
+          "log_amount": 15.395519659707562,
+          "term_months": 18.0,
+          "log_business_age": 2.8903717578961645,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 1.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 1.0,
+          "log_enforcement_amount": 11.044536531401494,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 10,
+            "value": "нет истории",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -9,
+            "value": "1 на 62 600 ₽",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -4,
+            "value": "сумма 0.15 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -3,
+            "value": "17 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 2,
+            "value": "0.81",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 2,
+            "value": "31.5 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-A-18647",
+      "description": "Заявка из test, грейд A",
+      "input": {
+        "request_id": "synthetic-18647",
+        "application": {
+          "amount_rub": 1101000.0,
+          "term_months": 36,
+          "estimated_monthly_payment_rub": 42105.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 87,
+          "financials": {
+            "revenue_rub": 28874000.0,
+            "expenses_rub": 21185000.0,
+            "net_profit_rub": 6462000.0,
+            "monthly_debt_payments_rub": 33400.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 54,
+            "active_loans": 2,
+            "closed_loans": 2,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.010145119331313856,
+        "logit": -4.580565611418171,
+        "score": 100,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.17845212880513,
+          "expense_ratio": 0.7337050633788184,
+          "profit_margin": 0.22379995844011913,
+          "debt_load": 0.14021355617455897,
+          "amount_to_revenue": 0.03813119069058669,
+          "log_amount": 13.911729415704817,
+          "term_months": 36.0,
+          "log_business_age": 4.477336814478207,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": 8,
+            "value": "0.73",
+            "client_explanation": "Доля расходов в выручке снижает расчётный риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 6,
+            "value": "0.14",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "87 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": 2,
+            "value": "36 мес.",
+            "client_explanation": "Срок кредита снижает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 2,
+            "value": "сумма 0.04 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-A-26635",
+      "description": "Заявка из test, грейд A",
+      "input": {
+        "request_id": "synthetic-26635",
+        "application": {
+          "amount_rub": 975000.0,
+          "term_months": 36,
+          "estimated_monthly_payment_rub": 37640.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 174,
+          "financials": {
+            "revenue_rub": 12609000.0,
+            "expenses_rub": null,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 17800.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 98,
+            "active_loans": 2,
+            "closed_loans": 1,
+            "max_overdue_days_24m": 25,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.059842066255955874,
+        "logit": -2.7543390130240044,
+        "score": 87,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 16.34992148196379,
+          "expense_ratio": null,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.07732571972400666,
+          "log_amount": 13.790192749979985,
+          "term_months": 36.0,
+          "log_business_age": 5.1647859739235145,
+          "overdue_months": 0.8333333333333334,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 5,
+            "value": "174 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -3,
+            "value": "просрочка до 25 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -3,
+            "value": "нет данных",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -3,
+            "value": "12.6 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": 2,
+            "value": "36 мес.",
+            "client_explanation": "Срок кредита снижает расчётный риск."
+          }
+        ],
+        "warnings": [
+          "expenses_missing",
+          "net_profit_missing"
+        ],
+        "missing_data": [
+          "company.financials.expenses_rub",
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-A-20334",
+      "description": "Заявка из test, грейд A",
+      "input": {
+        "request_id": "synthetic-20334",
+        "application": {
+          "amount_rub": 1403000.0,
+          "term_months": 12,
+          "estimated_monthly_payment_rub": 132667.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 37,
+          "financials": {
+            "revenue_rub": 24911000.0,
+            "expenses_rub": 17703000.0,
+            "net_profit_rub": 6275000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 37,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.014567906547229385,
+        "logit": -4.214259291069186,
+        "score": 100,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.030820071095775,
+          "expense_ratio": 0.7106499136927462,
+          "profit_margin": 0.2518967524386817,
+          "debt_load": 0.25370581673306775,
+          "amount_to_revenue": 0.05632050098350126,
+          "log_amount": 14.154123359084599,
+          "term_months": 12.0,
+          "log_business_age": 3.6375861597263857,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": 10,
+            "value": "0.71",
+            "client_explanation": "Доля расходов в выручке снижает расчётный риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 6,
+            "value": "0.25",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          },
+          {
+            "code": "collateral",
+            "title": "Обеспечение",
+            "impact": -1,
+            "value": "нет",
+            "client_explanation": "Без залога риск выше, чем с залогом."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": -1,
+            "value": "12 мес.",
+            "client_explanation": "Срок кредита повышает расчётный риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-B-1586",
+      "description": "Заявка из test, грейд B",
+      "input": {
+        "request_id": "synthetic-1586",
+        "application": {
+          "amount_rub": 1018000.0,
+          "term_months": 60,
+          "estimated_monthly_payment_rub": 29050.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 48,
+          "financials": {
+            "revenue_rub": 15066000.0,
+            "expenses_rub": 14425000.0,
+            "net_profit_rub": 536000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 48,
+            "active_loans": 0,
+            "closed_loans": 2,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 67100.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.09805488600378444,
+        "logit": -2.2190262858251892,
+        "score": 74,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 16.527951173742395,
+          "expense_ratio": 0.9574538696402496,
+          "profit_margin": 0.035576795433426255,
+          "debt_load": 0.6503731343283582,
+          "amount_to_revenue": 0.06756936147617151,
+          "log_amount": 13.833350476092605,
+          "term_months": 60.0,
+          "log_business_age": 3.8918202981106265,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 11.11395422597838,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -11,
+            "value": "0.96",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -8,
+            "value": "долг 67 100 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": 5,
+            "value": "60 мес.",
+            "client_explanation": "Срок кредита снижает расчётный риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -2,
+            "value": "15.1 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 2,
+            "value": "сумма 0.07 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-B-6858",
+      "description": "Заявка из test, грейд B",
+      "input": {
+        "request_id": "synthetic-6858",
+        "application": {
+          "amount_rub": 100000.0,
+          "term_months": 6,
+          "estimated_monthly_payment_rub": 17652.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 37,
+          "financials": {
+            "revenue_rub": 6779000.0,
+            "expenses_rub": 5091000.0,
+            "net_profit_rub": 1276000.0,
+            "monthly_debt_payments_rub": 5600.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 10,
+            "active_loans": 1,
+            "closed_loans": 2,
+            "max_overdue_days_24m": 21,
+            "has_write_offs": true
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.10888071803848193,
+        "logit": -2.102225339675032,
+        "score": 70,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 15.729340303927474,
+          "expense_ratio": 0.7509957220829031,
+          "profit_margin": 0.18822835226434578,
+          "debt_load": 0.21867084639498433,
+          "amount_to_revenue": 0.01475143826523086,
+          "log_amount": 11.512925464970229,
+          "term_months": 6.0,
+          "log_business_age": 3.6375861597263857,
+          "overdue_months": 0.7,
+          "write_offs": 1.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -28,
+            "value": "есть списания",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 10,
+            "value": "сумма 0.01 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": 6,
+            "value": "0.75",
+            "client_explanation": "Доля расходов в выручке снижает расчётный риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -6,
+            "value": "6.8 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 5,
+            "value": "0.22",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": -2,
+            "value": "6 мес.",
+            "client_explanation": "Срок кредита повышает расчётный риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-B-9277",
+      "description": "Заявка из test, грейд B",
+      "input": {
+        "request_id": "synthetic-9277",
+        "application": {
+          "amount_rub": 324000.0,
+          "term_months": 36,
+          "estimated_monthly_payment_rub": 11665.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 50,
+          "financials": {
+            "revenue_rub": 4841000.0,
+            "expenses_rub": 4083000.0,
+            "net_profit_rub": 529000.0,
+            "monthly_debt_payments_rub": 8400.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 50,
+            "active_loans": 2,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 31,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 49200.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": null
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.11934001610369048,
+        "logit": -1.998694911043349,
+        "score": 67,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 15.3926320754907,
+          "expense_ratio": 0.843420780830407,
+          "profit_margin": 0.10927494319355505,
+          "debt_load": 0.4551606805293006,
+          "amount_to_revenue": 0.0669283205949184,
+          "log_amount": 12.688498794774466,
+          "term_months": 36.0,
+          "log_business_age": 3.9318256327243257,
+          "overdue_months": 1.0333333333333334,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 10.803669227477098,
+          "blocked_accounts": 0.0,
+          "enforcement_count": null,
+          "log_enforcement_amount": null,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -8,
+            "value": "4.8 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 49 200 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -5,
+            "value": "просрочка до 31 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 5,
+            "value": "сумма 0.07 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -3,
+            "value": "нет ответа ФССП",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 2,
+            "value": "0.46",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.84",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          }
+        ],
+        "warnings": [
+          "fssp_missing"
+        ],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub",
+          "checks.fssp"
+        ]
+      }
+    },
+    {
+      "id": "test-B-8626",
+      "description": "Заявка из test, грейд B",
+      "input": {
+        "request_id": "synthetic-8626",
+        "application": {
+          "amount_rub": 1003000.0,
+          "term_months": 36,
+          "estimated_monthly_payment_rub": 39035.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 9,
+          "financials": {
+            "revenue_rub": 9083000.0,
+            "expenses_rub": 7766000.0,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 0,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 1,
+            "open_amount_rub": 255200.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.10334579104774909,
+        "logit": -2.1605897303983683,
+        "score": 72,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 16.02191520258013,
+          "expense_ratio": 0.8550038533524166,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.1104260706814929,
+          "log_amount": 13.818506066944073,
+          "term_months": 36.0,
+          "log_business_age": 2.302585092994046,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 1.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 1.0,
+          "log_enforcement_amount": 12.449806748940393,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 10,
+            "value": "нет истории",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -10,
+            "value": "1 на 255 200 ₽",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -5,
+            "value": "9 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -5,
+            "value": "9.1 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -3,
+            "value": "0.86",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": 2,
+            "value": "36 мес.",
+            "client_explanation": "Срок кредита снижает расчётный риск."
+          }
+        ],
+        "warnings": [
+          "net_profit_missing"
+        ],
+        "missing_data": [
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-C-23675",
+      "description": "Заявка из test, грейд C",
+      "input": {
+        "request_id": "synthetic-23675",
+        "application": {
+          "amount_rub": 2504000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 132139.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 1,
+          "financials": {
+            "revenue_rub": 6722000.0,
+            "expenses_rub": 5544000.0,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 8600.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 1,
+            "active_loans": 1,
+            "closed_loans": 1,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.16232133030670182,
+        "logit": -1.6410566868284147,
+        "score": 53,
+        "risk_grade": "C",
+        "features": {
+          "log_revenue": 15.720896436032426,
+          "expense_ratio": 0.8247545373400773,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.3725081820886641,
+          "log_amount": 14.733400011202127,
+          "term_months": 24.0,
+          "log_business_age": 0.6931471805599453,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -11,
+            "value": "1 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -6,
+            "value": "6.7 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -3,
+            "value": "сумма 0.37 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "net_profit_missing"
+        ],
+        "missing_data": [
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-C-4098",
+      "description": "Заявка из test, грейд C",
+      "input": {
+        "request_id": "synthetic-4098",
+        "application": {
+          "amount_rub": 4454000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 227998.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 37,
+          "financials": {
+            "revenue_rub": 26751000.0,
+            "expenses_rub": 25458000.0,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": null,
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.1424315227431539,
+        "logit": -1.7952396906529853,
+        "score": 59,
+        "risk_grade": "C",
+        "features": {
+          "log_revenue": 17.102082451166904,
+          "expense_ratio": 0.9516653583043625,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.166498448656125,
+          "log_amount": 15.30931312679945,
+          "term_months": 24.0,
+          "log_business_age": 3.6375861597263857,
+          "overdue_months": null,
+          "write_offs": null,
+          "no_credit_history": null,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -11,
+            "value": "0.95",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -4,
+            "value": "сумма 0.17 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -2,
+            "value": "нет ответа БКИ",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          },
+          {
+            "code": "collateral",
+            "title": "Обеспечение",
+            "impact": -1,
+            "value": "нет",
+            "client_explanation": "Без залога риск выше, чем с залогом."
+          }
+        ],
+        "warnings": [
+          "net_profit_missing",
+          "credit_bureau_missing"
+        ],
+        "missing_data": [
+          "company.financials.net_profit_rub",
+          "checks.fns.reported_revenue_rub",
+          "checks.credit_bureau"
+        ]
+      }
+    },
+    {
+      "id": "test-C-24515",
+      "description": "Заявка из test, грейд C",
+      "input": {
+        "request_id": "synthetic-24515",
+        "application": {
+          "amount_rub": 3221000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 161585.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 81,
+          "financials": {
+            "revenue_rub": 41702000.0,
+            "expenses_rub": 35429000.0,
+            "net_profit_rub": 4540000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 41,
+            "active_loans": 0,
+            "closed_loans": 2,
+            "max_overdue_days_24m": 87,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 37600.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.15182412854038083,
+        "logit": -1.7203652080058192,
+        "score": 56,
+        "risk_grade": "C",
+        "features": {
+          "log_revenue": 17.54605967122927,
+          "expense_ratio": 0.8495755599251834,
+          "profit_margin": 0.1088676802071843,
+          "debt_load": 0.4270969162995595,
+          "amount_to_revenue": 0.07723850175051557,
+          "log_amount": 14.985202428313336,
+          "term_months": 24.0,
+          "log_business_age": 4.406719247264253,
+          "overdue_months": 2.9,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 10.534785924769006,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -16,
+            "value": "просрочка до 87 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 37 600 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 3,
+            "value": "41.7 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 2,
+            "value": "81 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 2,
+            "value": "0.43",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-C-15954",
+      "description": "Заявка из test, грейд C",
+      "input": {
+        "request_id": "synthetic-15954",
+        "application": {
+          "amount_rub": 2515000.0,
+          "term_months": 12,
+          "estimated_monthly_payment_rub": 230097.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 75,
+          "financials": {
+            "revenue_rub": 13203000.0,
+            "expenses_rub": 12038000.0,
+            "net_profit_rub": 999000.0,
+            "monthly_debt_payments_rub": 38100.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 44,
+            "active_loans": 1,
+            "closed_loans": 1,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.1302525997659765,
+        "logit": -1.8987271846820535,
+        "score": 63,
+        "risk_grade": "C",
+        "features": {
+          "log_revenue": 16.395954710201696,
+          "expense_ratio": 0.911762478224646,
+          "profit_margin": 0.07566462167689161,
+          "debt_load": 3.2215855855855855,
+          "amount_to_revenue": 0.1904870105279103,
+          "log_amount": 14.737783361515977,
+          "term_months": 12.0,
+          "log_business_age": 4.330733340286331,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -10,
+            "value": "3.22",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -7,
+            "value": "0.91",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -3,
+            "value": "13.2 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 2,
+            "value": "75 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -2,
+            "value": "сумма 0.19 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-D-23112",
+      "description": "Заявка из test, грейд D",
+      "input": {
+        "request_id": "synthetic-23112",
+        "application": {
+          "amount_rub": 3279000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 164494.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 27,
+          "financials": {
+            "revenue_rub": 16898000.0,
+            "expenses_rub": 14977000.0,
+            "net_profit_rub": 1624000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 27,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 24,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 29100.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": null
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.21444308398712464,
+        "logit": -1.2983485529528038,
+        "score": 35,
+        "risk_grade": "D",
+        "features": {
+          "log_revenue": 16.642705888873525,
+          "expense_ratio": 0.886317907444668,
+          "profit_margin": 0.09610604805302403,
+          "debt_load": 1.215472906403941,
+          "amount_to_revenue": 0.1940466327376021,
+          "log_amount": 15.003049055826786,
+          "term_months": 24.0,
+          "log_business_age": 3.332204510175204,
+          "overdue_months": 0.8,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 10.278527816830314,
+          "blocked_accounts": 0.0,
+          "enforcement_count": null,
+          "log_enforcement_amount": null,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 29 100 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -5,
+            "value": "0.89",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -3,
+            "value": "просрочка до 24 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -3,
+            "value": "нет ответа ФССП",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -3,
+            "value": "сумма 0.19 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -2,
+            "value": "16.9 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -1,
+            "value": "27 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          }
+        ],
+        "warnings": [
+          "fssp_missing"
+        ],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub",
+          "checks.fssp"
+        ]
+      }
+    },
+    {
+      "id": "test-D-10322",
+      "description": "Заявка из test, грейд D",
+      "input": {
+        "request_id": "synthetic-10322",
+        "application": {
+          "amount_rub": 1007000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 52890.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 1,
+          "financials": {
+            "revenue_rub": 6014000.0,
+            "expenses_rub": 5348000.0,
+            "net_profit_rub": 463000.0,
+            "monthly_debt_payments_rub": 19800.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": null,
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.21092877480683891,
+        "logit": -1.319336073180534,
+        "score": 36,
+        "risk_grade": "D",
+        "features": {
+          "log_revenue": 15.609600808809281,
+          "expense_ratio": 0.8892583970734952,
+          "profit_margin": 0.07698703026272032,
+          "debt_load": 1.883974082073434,
+          "amount_to_revenue": 0.16744263385433988,
+          "log_amount": 13.8224861717007,
+          "term_months": 24.0,
+          "log_business_age": 0.6931471805599453,
+          "overdue_months": null,
+          "write_offs": null,
+          "no_credit_history": null,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -11,
+            "value": "1 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -7,
+            "value": "6.0 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -6,
+            "value": "0.89",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -4,
+            "value": "1.88",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -2,
+            "value": "нет ответа БКИ",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "credit_bureau_missing"
+        ],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub",
+          "checks.credit_bureau"
+        ]
+      }
+    },
+    {
+      "id": "test-D-9893",
+      "description": "Заявка из test, грейд D",
+      "input": {
+        "request_id": "synthetic-9893",
+        "application": {
+          "amount_rub": 401000.0,
+          "term_months": 36,
+          "estimated_monthly_payment_rub": 14477.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 141,
+          "financials": {
+            "revenue_rub": 8460000.0,
+            "expenses_rub": 8051000.0,
+            "net_profit_rub": 292000.0,
+            "monthly_debt_payments_rub": 34700.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 59,
+            "active_loans": 2,
+            "closed_loans": 3,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 0.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 2,
+            "open_amount_rub": 784600.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.1949357814312087,
+        "logit": -1.4182518705261227,
+        "score": 42,
+        "risk_grade": "D",
+        "features": {
+          "log_revenue": 15.950859849785708,
+          "expense_ratio": 0.9516548463356974,
+          "profit_margin": 0.03451536643026005,
+          "debt_load": 2.020972602739726,
+          "amount_to_revenue": 0.04739952718676123,
+          "log_amount": 12.901716706288706,
+          "term_months": 36.0,
+          "log_business_age": 4.955827057601261,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 2.0,
+          "log_enforcement_amount": 13.572930587291571,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -17,
+            "value": "2 на 784 600 ₽",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -11,
+            "value": "0.95",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -6,
+            "value": "2.02",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -5,
+            "value": "8.5 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 5,
+            "value": "сумма 0.05 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 4,
+            "value": "141 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-D-11654",
+      "description": "Заявка из test, грейд D",
+      "input": {
+        "request_id": "synthetic-11654",
+        "application": {
+          "amount_rub": 385000.0,
+          "term_months": 6,
+          "estimated_monthly_payment_rub": 67769.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 4,
+          "financials": {
+            "revenue_rub": 14907000.0,
+            "expenses_rub": 13748000.0,
+            "net_profit_rub": 873000.0,
+            "monthly_debt_payments_rub": 38200.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 4,
+            "active_loans": 3,
+            "closed_loans": 1,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 33000.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.18010675494648948,
+        "logit": -1.5156243847018205,
+        "score": 47,
+        "risk_grade": "D",
+        "features": {
+          "log_revenue": 16.517341526335144,
+          "expense_ratio": 0.9222512913396391,
+          "profit_margin": 0.058563091165224394,
+          "debt_load": 1.456618556701031,
+          "amount_to_revenue": 0.025826792781914538,
+          "log_amount": 12.86099861326992,
+          "term_months": 6.0,
+          "log_business_age": 1.6094379124341003,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 10.404293143019792,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": -8,
+            "value": "4 мес.",
+            "client_explanation": "Бизнес молодой, это повышает риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -8,
+            "value": "0.92",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 33 000 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 5,
+            "value": "сумма 0.03 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -3,
+            "value": "1.46",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-E-13691",
+      "description": "Заявка из test, грейд E",
+      "input": {
+        "request_id": "synthetic-13691",
+        "application": {
+          "amount_rub": 1448000.0,
+          "term_months": 6,
+          "estimated_monthly_payment_rub": 255460.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 55,
+          "financials": {
+            "revenue_rub": 23381000.0,
+            "expenses_rub": 22493000.0,
+            "net_profit_rub": 748000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 55,
+            "active_loans": 0,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 47,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 28400.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.40786069396235625,
+        "logit": -0.37281624172000605,
+        "score": 0,
+        "risk_grade": "E",
+        "features": {
+          "log_revenue": 16.967434327462946,
+          "expense_ratio": 0.962020443950216,
+          "profit_margin": 0.03199178820409734,
+          "debt_load": 4.098288770053476,
+          "amount_to_revenue": 0.06193062743253069,
+          "log_amount": 14.185693851927798,
+          "term_months": 6.0,
+          "log_business_age": 4.02535169073515,
+          "overdue_months": 1.5666666666666667,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 10.254179634797001,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -14,
+            "value": "4.10",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -12,
+            "value": "0.96",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -8,
+            "value": "просрочка до 47 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 28 400 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "loan_term",
+            "title": "Срок кредита",
+            "impact": -2,
+            "value": "6 мес.",
+            "client_explanation": "Срок кредита повышает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 1,
+            "value": "55 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-E-14644",
+      "description": "Заявка из test, грейд E",
+      "input": {
+        "request_id": "synthetic-14644",
+        "application": {
+          "amount_rub": 492000.0,
+          "term_months": 12,
+          "estimated_monthly_payment_rub": 45529.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 29,
+          "financials": {
+            "revenue_rub": 6275000.0,
+            "expenses_rub": 6030000.0,
+            "net_profit_rub": 181000.0,
+            "monthly_debt_payments_rub": 35700.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 29,
+            "active_loans": 1,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 0,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 86500.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.3966833565185952,
+        "logit": -0.4193038006618486,
+        "score": 0,
+        "risk_grade": "E",
+        "features": {
+          "log_revenue": 15.652084202344659,
+          "expense_ratio": 0.9609561752988047,
+          "profit_margin": 0.028844621513944225,
+          "debt_load": 5.0,
+          "amount_to_revenue": 0.07840637450199203,
+          "log_amount": 13.106233995474446,
+          "term_months": 12.0,
+          "log_business_age": 3.4011973816621555,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 11.367911253546788,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -18,
+            "value": "5.39",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -12,
+            "value": "0.96",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -8,
+            "value": "долг 86 500 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -7,
+            "value": "6.3 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 4,
+            "value": "сумма 0.08 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-E-15770",
+      "description": "Заявка из test, грейд E",
+      "input": {
+        "request_id": "synthetic-15770",
+        "application": {
+          "amount_rub": 3990000.0,
+          "term_months": 24,
+          "estimated_monthly_payment_rub": 197658.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 107,
+          "financials": {
+            "revenue_rub": 39772000.0,
+            "expenses_rub": 40976000.0,
+            "net_profit_rub": -983000.0,
+            "monthly_debt_payments_rub": 0.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 39,
+            "active_loans": 0,
+            "closed_loans": 2,
+            "max_overdue_days_24m": 7,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 19500.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 1,
+            "open_amount_rub": 292000.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.5539663822805224,
+        "logit": 0.21670967786988538,
+        "score": 0,
+        "risk_grade": "E",
+        "features": {
+          "log_revenue": 17.498673730225416,
+          "expense_ratio": 1.030272553555265,
+          "profit_margin": -0.02471588051895806,
+          "debt_load": 5.0,
+          "amount_to_revenue": 0.10032183445640148,
+          "log_amount": 15.199301788866046,
+          "term_months": 24.0,
+          "log_business_age": 4.68213122712422,
+          "overdue_months": 0.23333333333333334,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 9.87822102528824,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 1.0,
+          "log_enforcement_amount": 12.584512505902088,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -19,
+            "value": "прибыли нет",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -17,
+            "value": "1.03",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -10,
+            "value": "1 на 292 000 ₽",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -7,
+            "value": "долг 19 500 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "107 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 3,
+            "value": "39.8 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": -3,
+            "value": "сумма 0.10 годовой выручки",
+            "client_explanation": "Сумма кредита велика относительно выручки."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "test-E-16713",
+      "description": "Заявка из test, грейд E",
+      "input": {
+        "request_id": "synthetic-16713",
+        "application": {
+          "amount_rub": 199000.0,
+          "term_months": 12,
+          "estimated_monthly_payment_rub": 18616.0,
+          "collateral_offered": false
+        },
+        "company": {
+          "business_age_months": 45,
+          "financials": {
+            "revenue_rub": 11205000.0,
+            "expenses_rub": 11143000.0,
+            "net_profit_rub": 48000.0,
+            "monthly_debt_payments_rub": 41700.0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active"
+          },
+          "credit_bureau": {
+            "credit_history_months": 45,
+            "active_loans": 2,
+            "closed_loans": 0,
+            "max_overdue_days_24m": 72,
+            "has_write_offs": false
+          },
+          "fns": {
+            "tax_debt_rub": 267800.0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": null
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0.0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.5807122991136484,
+        "logit": 0.32569813070513876,
+        "score": 0,
+        "risk_grade": "E",
+        "features": {
+          "log_revenue": 16.23187075446303,
+          "expense_ratio": 0.9944667559125391,
+          "profit_margin": 0.00428380187416332,
+          "debt_load": 5.0,
+          "amount_to_revenue": 0.017759928603302097,
+          "log_amount": 12.201060103706629,
+          "term_months": 12.0,
+          "log_business_age": 3.828641396489095,
+          "overdue_months": 2.4,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 12.497999446362185,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -18,
+            "value": "15.08",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -14,
+            "value": "0.99",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -13,
+            "value": "просрочка до 72 дн.",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": -9,
+            "value": "долг 267 800 ₽",
+            "client_explanation": "Налоговая задолженность или блокировка счетов повышают риск."
+          },
+          {
+            "code": "revenue_to_amount",
+            "title": "Сумма кредита к выручке",
+            "impact": 7,
+            "value": "сумма 0.02 годовой выручки",
+            "client_explanation": "Сумма кредита умеренная относительно выручки и масштаба бизнеса."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": -4,
+            "value": "11.2 млн ₽ в год",
+            "client_explanation": "Небольшая выручка повышает расчётный риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": [
+          "checks.fns.reported_revenue_rub"
+        ]
+      }
+    },
+    {
+      "id": "edge-no-net-profit",
+      "description": "«Ромашка» с изменением: no-net-profit",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": null,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.040151690382514926,
+        "logit": -3.174110719973651,
+        "score": 93,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": null,
+          "debt_load": null,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -5,
+            "value": "нет данных о прибыли",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "net_profit_missing"
+        ],
+        "missing_data": [
+          "company.financials.net_profit_rub"
+        ]
+      }
+    },
+    {
+      "id": "edge-no-expenses",
+      "description": "«Ромашка» с изменением: no-expenses",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": null,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.026625316493110975,
+        "logit": -3.5989065777227216,
+        "score": 98,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": null,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -3,
+            "value": "нет данных",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "expenses_missing"
+        ],
+        "missing_data": [
+          "company.financials.expenses_rub"
+        ]
+      }
+    },
+    {
+      "id": "edge-no-bureau",
+      "description": "«Ромашка» с изменением: no-bureau",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": null,
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.031614886235450716,
+        "logit": -3.4220017598871517,
+        "score": 96,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": null,
+          "write_offs": null,
+          "no_credit_history": null,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": -2,
+            "value": "нет ответа БКИ",
+            "client_explanation": "Просрочки или списания в кредитной истории повышают риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "credit_bureau_missing"
+        ],
+        "missing_data": [
+          "checks.credit_bureau"
+        ]
+      }
+    },
+    {
+      "id": "edge-no-fns",
+      "description": "«Ромашка» с изменением: no-fns",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": null,
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.027757088837307146,
+        "logit": -3.556114420675696,
+        "score": 97,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": null,
+          "blocked_accounts": null,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "collateral",
+            "title": "Обеспечение",
+            "impact": -1,
+            "value": "нет",
+            "client_explanation": "Без залога риск выше, чем с залогом."
+          }
+        ],
+        "warnings": [
+          "fns_missing"
+        ],
+        "missing_data": [
+          "checks.fns"
+        ]
+      }
+    },
+    {
+      "id": "edge-no-fssp",
+      "description": "«Ромашка» с изменением: no-fssp",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": null
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.032400508740719716,
+        "logit": -3.3966441284108004,
+        "score": 96,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": null,
+          "log_enforcement_amount": null,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": -3,
+            "value": "нет ответа ФССП",
+            "client_explanation": "Исполнительные производства повышают риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [
+          "fssp_missing"
+        ],
+        "missing_data": [
+          "checks.fssp"
+        ]
+      }
+    },
+    {
+      "id": "edge-negative-profit",
+      "description": "«Ромашка» с изменением: negative-profit",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": false
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": -1000000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.09316698170189086,
+        "logit": -2.2755649445193784,
+        "score": 76,
+        "risk_grade": "B",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": -0.020833333333333332,
+          "debt_load": 5.0,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 0.0
+        },
+        "factors": [
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": -19,
+            "value": "прибыли нет",
+            "client_explanation": "Платежи по кредитам велики относительно прибыли или прибыли нет."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          },
+          {
+            "code": "tax_debt",
+            "title": "Налоговая задолженность",
+            "impact": 2,
+            "value": "нет долга",
+            "client_explanation": "Налоговой задолженности и блокировок нет."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    },
+    {
+      "id": "edge-collateral",
+      "description": "«Ромашка» с изменением: collateral",
+      "input": {
+        "request_id": "00000000-0000-4000-8000-000000000901",
+        "application": {
+          "id": "00000000-0000-4000-9000-000000000901",
+          "number": "AC-000901",
+          "created_at": "2026-10-23T09:00:00Z",
+          "amount_rub": 1500000,
+          "term_months": 12,
+          "purpose": "WorkingCapital",
+          "estimated_monthly_payment_rub": 138593,
+          "product": {
+            "code": "working-capital",
+            "type": "WorkingCapital",
+            "base_rate_percent": 19.5,
+            "requires_collateral": false,
+            "auto_approval_limit_rub": 5000000
+          },
+          "collateral_offered": true
+        },
+        "company": {
+          "inn": "7701234567",
+          "legal_form": "Ooo",
+          "okved": "47.11",
+          "region_code": "77",
+          "registered_at": "2019-03-12",
+          "business_age_months": 91,
+          "tax_regime": "Osno",
+          "employees_count": 24,
+          "financials": {
+            "period_months": 12,
+            "revenue_rub": 48000000,
+            "expenses_rub": 40800000,
+            "net_profit_rub": 7200000,
+            "monthly_debt_payments_rub": 150000
+          },
+          "history": {
+            "previous_applications": 0,
+            "previous_rejections": 0,
+            "previous_loans_disbursed": 0
+          }
+        },
+        "checks": {
+          "egrul": {
+            "status": "Active",
+            "head_disqualified": false,
+            "mass_address": false,
+            "registered_at": "2019-03-12",
+            "okved": "47.11"
+          },
+          "fns": {
+            "tax_debt_rub": 0,
+            "has_blocked_accounts": false,
+            "reported_revenue_rub": 47300000
+          },
+          "credit_bureau": {
+            "credit_history_months": 60,
+            "active_loans": 1,
+            "closed_loans": 3,
+            "total_debt_rub": 1200000,
+            "monthly_payments_rub": 150000,
+            "max_overdue_days_24m": 0,
+            "overdue_count_24m": 0,
+            "has_write_offs": false
+          },
+          "fssp": {
+            "open_proceedings": 0,
+            "open_amount_rub": 0
+          }
+        }
+      },
+      "expected": {
+        "probability_of_default": 0.015797374507977684,
+        "logit": -4.131988040225131,
+        "score": 100,
+        "risk_grade": "A",
+        "features": {
+          "log_revenue": 17.6867115897055,
+          "expense_ratio": 0.85,
+          "profit_margin": 0.15,
+          "debt_load": 0.48098833333333335,
+          "amount_to_revenue": 0.03125,
+          "log_amount": 14.22097566607244,
+          "term_months": 12.0,
+          "log_business_age": 4.5217885770490405,
+          "overdue_months": 0.0,
+          "write_offs": 0.0,
+          "no_credit_history": 0.0,
+          "log_tax_debt": 0.0,
+          "blocked_accounts": 0.0,
+          "enforcement_count": 0.0,
+          "log_enforcement_amount": 0.0,
+          "collateral": 1.0
+        },
+        "factors": [
+          {
+            "code": "collateral",
+            "title": "Обеспечение",
+            "impact": 6,
+            "value": "предложено",
+            "client_explanation": "Предложенный залог снижает риск."
+          },
+          {
+            "code": "revenue_size",
+            "title": "Размер выручки",
+            "impact": 4,
+            "value": "48.0 млн ₽ в год",
+            "client_explanation": "Крупная выручка снижает расчётный риск."
+          },
+          {
+            "code": "business_age",
+            "title": "Возраст бизнеса",
+            "impact": 3,
+            "value": "91 мес.",
+            "client_explanation": "Бизнес работает давно, это снижает риск."
+          },
+          {
+            "code": "debt_load",
+            "title": "Долговая нагрузка и прибыльность",
+            "impact": 3,
+            "value": "0.48",
+            "client_explanation": "Платежи по кредитам невелики относительно прибыли."
+          },
+          {
+            "code": "credit_history",
+            "title": "Кредитная история",
+            "impact": 2,
+            "value": "без просрочек",
+            "client_explanation": "Кредитная история без серьёзных просрочек снижает риск."
+          },
+          {
+            "code": "enforcement",
+            "title": "Исполнительные производства",
+            "impact": 2,
+            "value": "нет",
+            "client_explanation": "Исполнительных производств нет."
+          },
+          {
+            "code": "expense_ratio",
+            "title": "Расходы к выручке",
+            "impact": -2,
+            "value": "0.85",
+            "client_explanation": "Расходы занимают большую долю выручки, это повышает риск."
+          }
+        ],
+        "warnings": [],
+        "missing_data": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,349 @@
+{
+  "model_version": "logreg-synthetic-0.1",
+  "kind": "logistic_regression",
+  "target": "default_12m: условный дефолт в течение 12 месяцев после выдачи (синтетические данные)",
+  "training": {
+    "data": "ml/generate.py",
+    "seed": 20261025,
+    "companies": 20000,
+    "dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+    "split_seed": 42,
+    "selected_C": 0.03,
+    "solver": "lbfgs",
+    "penalty": "l2",
+    "sklearn": "1.9.1",
+    "python": "3.13.17"
+  },
+  "input": "запрос POST /api/v1/score в формате контракта backend (docs/scoring-contract.md)",
+  "features": [
+    {
+      "name": "log_revenue",
+      "formula": "ln(1 + revenue_rub)",
+      "impute_value": 16.950439440209404,
+      "missing_indicator": false
+    },
+    {
+      "name": "expense_ratio",
+      "formula": "expenses_rub / revenue_rub, обрезать до [0, 2]; null, если expenses_rub = null или revenue_rub = 0",
+      "impute_value": 0.8198388334612433,
+      "missing_indicator": true
+    },
+    {
+      "name": "profit_margin",
+      "formula": "net_profit_rub / revenue_rub, обрезать до [-1, 1]; null, если net_profit_rub = null или revenue_rub = 0",
+      "impute_value": 0.14161220043572983,
+      "missing_indicator": true
+    },
+    {
+      "name": "debt_load",
+      "formula": "(monthly_debt_payments_rub + estimated_monthly_payment_rub) * 12 / net_profit_rub, обрезать до [0, 5]; 5, если net_profit_rub <= 0; null, если net_profit_rub = null",
+      "impute_value": 0.5477131293140252,
+      "missing_indicator": true
+    },
+    {
+      "name": "amount_to_revenue",
+      "formula": "amount_rub / revenue_rub, обрезать до [0, 5]; 5, если revenue_rub = 0",
+      "impute_value": 0.07041975308641975,
+      "missing_indicator": false
+    },
+    {
+      "name": "log_amount",
+      "formula": "ln(amount_rub)",
+      "impute_value": 14.304703881603151,
+      "missing_indicator": false
+    },
+    {
+      "name": "term_months",
+      "formula": "term_months",
+      "impute_value": 18.0,
+      "missing_indicator": false
+    },
+    {
+      "name": "log_business_age",
+      "formula": "ln(1 + business_age_months)",
+      "impute_value": 3.871201010907891,
+      "missing_indicator": false
+    },
+    {
+      "name": "overdue_months",
+      "formula": "min(max_overdue_days_24m, 360) / 30; null, если checks.credit_bureau = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "write_offs",
+      "formula": "1, если has_write_offs, иначе 0; null, если checks.credit_bureau = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "no_credit_history",
+      "formula": "1, если credit_history_months = 0 и active_loans = 0 и closed_loans = 0, иначе 0; null, если checks.credit_bureau = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "log_tax_debt",
+      "formula": "ln(1 + max(tax_debt_rub, 0)); null, если checks.fns = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "blocked_accounts",
+      "formula": "1, если has_blocked_accounts, иначе 0; null, если checks.fns = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "enforcement_count",
+      "formula": "min(open_proceedings, 10); null, если checks.fssp = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "log_enforcement_amount",
+      "formula": "ln(1 + open_amount_rub); null, если checks.fssp = null",
+      "impute_value": 0.0,
+      "missing_indicator": true
+    },
+    {
+      "name": "collateral",
+      "formula": "1, если application.collateral_offered, иначе 0",
+      "impute_value": 0.0,
+      "missing_indicator": false
+    }
+  ],
+  "missing_indicators": {
+    "order": [
+      "expense_ratio",
+      "profit_margin",
+      "debt_load",
+      "overdue_months",
+      "write_offs",
+      "no_credit_history",
+      "log_tax_debt",
+      "blocked_accounts",
+      "enforcement_count",
+      "log_enforcement_amount"
+    ],
+    "rule": "для каждого признака из order добавляется столбец missing:<имя> = 1, если значение признака null, иначе 0"
+  },
+  "columns": [
+    "log_revenue",
+    "expense_ratio",
+    "profit_margin",
+    "debt_load",
+    "amount_to_revenue",
+    "log_amount",
+    "term_months",
+    "log_business_age",
+    "overdue_months",
+    "write_offs",
+    "no_credit_history",
+    "log_tax_debt",
+    "blocked_accounts",
+    "enforcement_count",
+    "log_enforcement_amount",
+    "collateral",
+    "missing:expense_ratio",
+    "missing:profit_margin",
+    "missing:debt_load",
+    "missing:overdue_months",
+    "missing:write_offs",
+    "missing:no_credit_history",
+    "missing:log_tax_debt",
+    "missing:blocked_accounts",
+    "missing:enforcement_count",
+    "missing:log_enforcement_amount"
+  ],
+  "imputation": "null заменяется на impute_value (медиана train) до масштабирования",
+  "scaling": {
+    "mean": {
+      "log_revenue": 16.94964210075889,
+      "expense_ratio": 0.8203522548354256,
+      "profit_margin": 0.14283985245987696,
+      "debt_load": 0.9795097063234216,
+      "amount_to_revenue": 0.08410227220650052,
+      "log_amount": 14.296300867388712,
+      "term_months": 23.0590928602089,
+      "log_business_age": 3.732829309051638,
+      "overdue_months": 0.2687652024610091,
+      "write_offs": 0.018457576191157534,
+      "no_credit_history": 0.03376734869079983,
+      "log_tax_debt": 1.7056337751883626,
+      "blocked_accounts": 0.030142605046024704,
+      "enforcement_count": 0.13530786473982925,
+      "log_enforcement_amount": 1.4553728877246144,
+      "collateral": 0.12667525158582535,
+      "missing:expense_ratio": 0.08045977011494253,
+      "missing:profit_margin": 0.11975962226355702,
+      "missing:debt_load": 0.11975962226355702,
+      "missing:overdue_months": 0.029856441074068776,
+      "missing:write_offs": 0.029856441074068776,
+      "missing:no_credit_history": 0.029856441074068776,
+      "missing:log_tax_debt": 0.030858014975914533,
+      "missing:blocked_accounts": 0.030858014975914533,
+      "missing:enforcement_count": 0.032908856774932035,
+      "missing:log_enforcement_amount": 0.032908856774932035
+    },
+    "scale": {
+      "log_revenue": 1.0830390330536575,
+      "expense_ratio": 0.09604049771971251,
+      "profit_margin": 0.07816958874753503,
+      "debt_load": 1.2081808267829963,
+      "amount_to_revenue": 0.05505269977009547,
+      "log_amount": 1.2196674516265227,
+      "term_months": 13.73733417943603,
+      "log_business_age": 1.0191679271619294,
+      "overdue_months": 0.9954317923596335,
+      "write_offs": 0.13459901215205833,
+      "no_credit_history": 0.18062977288697082,
+      "log_tax_debt": 3.96993480796678,
+      "blocked_accounts": 0.17097961401013634,
+      "enforcement_count": 0.3887782750267076,
+      "log_enforcement_amount": 3.938579607232439,
+      "collateral": 0.3326088276361133,
+      "missing:expense_ratio": 0.2720036681885447,
+      "missing:profit_margin": 0.32468023521439676,
+      "missing:debt_load": 0.32468023521439676,
+      "missing:overdue_months": 0.17019116898490635,
+      "missing:write_offs": 0.17019116898490635,
+      "missing:no_credit_history": 0.17019116898490635,
+      "missing:log_tax_debt": 0.17293292887030834,
+      "missing:blocked_accounts": 0.17293292887030834,
+      "missing:enforcement_count": 0.17839804909439505,
+      "missing:log_enforcement_amount": 0.17839804909439505
+    },
+    "rule": "z = (x - mean) / scale для каждого столбца columns, включая индикаторы"
+  },
+  "coefficients": {
+    "log_revenue": -0.349842433967054,
+    "expense_ratio": 0.5178860121394585,
+    "profit_margin": -0.1112328065055342,
+    "debt_load": 0.30851546625868403,
+    "amount_to_revenue": 0.02207012215460093,
+    "log_amount": 0.2599086520741959,
+    "term_months": -0.11457330041498415,
+    "log_business_age": -0.23645377775645623,
+    "overdue_months": 0.40247424118786596,
+    "write_offs": 0.22058780915011025,
+    "no_credit_history": -0.09429408658038231,
+    "log_tax_debt": 0.22003507141629233,
+    "blocked_accounts": 0.18008987027126372,
+    "enforcement_count": 0.1663345029656135,
+    "log_enforcement_amount": 0.08930401985353165,
+    "collateral": -0.1527934620556312,
+    "missing:expense_ratio": 0.06428611229877071,
+    "missing:profit_margin": 0.07622264023320835,
+    "missing:debt_load": 0.07622264023320835,
+    "missing:overdue_months": 0.014217056950663269,
+    "missing:write_offs": 0.014217056950663269,
+    "missing:no_credit_history": 0.014217056950663269,
+    "missing:log_tax_debt": 0.010072890505935215,
+    "missing:blocked_accounts": 0.010072890505935215,
+    "missing:enforcement_count": 0.024615813969939265,
+    "missing:log_enforcement_amount": 0.02461581396993814
+  },
+  "intercept": -2.953181460110346,
+  "pd": "pd = 1 / (1 + exp(-(intercept + sum(coefficients[c] * z[c]))))",
+  "score": {
+    "pd_at_score_100": 0.02,
+    "pd_at_score_0": 0.32,
+    "formula": "score = clamp(round_half_up(100 * (pd_at_score_0 - pd) / (pd_at_score_0 - pd_at_score_100)), 0, 100)"
+  },
+  "grades": [
+    {
+      "grade": "A",
+      "min_score": 80
+    },
+    {
+      "grade": "B",
+      "min_score": 65
+    },
+    {
+      "grade": "C",
+      "min_score": 50
+    },
+    {
+      "grade": "D",
+      "min_score": 35
+    },
+    {
+      "grade": "E",
+      "min_score": 0
+    }
+  ],
+  "explanation": {
+    "groups": {
+      "revenue_size": {
+        "title": "Размер выручки",
+        "features": [
+          "log_revenue"
+        ]
+      },
+      "revenue_to_amount": {
+        "title": "Сумма кредита к выручке",
+        "features": [
+          "amount_to_revenue",
+          "log_amount"
+        ]
+      },
+      "loan_term": {
+        "title": "Срок кредита",
+        "features": [
+          "term_months"
+        ]
+      },
+      "expense_ratio": {
+        "title": "Расходы к выручке",
+        "features": [
+          "expense_ratio"
+        ]
+      },
+      "debt_load": {
+        "title": "Долговая нагрузка и прибыльность",
+        "features": [
+          "debt_load",
+          "profit_margin"
+        ]
+      },
+      "business_age": {
+        "title": "Возраст бизнеса",
+        "features": [
+          "log_business_age"
+        ]
+      },
+      "credit_history": {
+        "title": "Кредитная история",
+        "features": [
+          "overdue_months",
+          "write_offs",
+          "no_credit_history"
+        ]
+      },
+      "tax_debt": {
+        "title": "Налоговая задолженность",
+        "features": [
+          "log_tax_debt",
+          "blocked_accounts"
+        ]
+      },
+      "enforcement": {
+        "title": "Исполнительные производства",
+        "features": [
+          "enforcement_count",
+          "log_enforcement_amount"
+        ]
+      },
+      "collateral": {
+        "title": "Обеспечение",
+        "features": [
+          "collateral"
+        ]
+      }
+    },
+    "baseline_pd": 0.04958636208942137,
+    "points_per_logit": 15.709184928052725,
+    "method": "contribution[g] = сумма coefficients[c] * z[c] по столбцам группы и их missing:-индикаторам (вклад в логит относительно средней заявки train, у которой все z = 0); impact[g] = clamp(round_half_away_from_zero(-points_per_logit * contribution[g]), -100, 100), где points_per_logit = 100 / (pd_at_score_0 - pd_at_score_100) * baseline_pd * (1 - baseline_pd), baseline_pd = sigmoid(intercept): наклон шкалы баллов у средней заявки. Это линейное приближение: вклад не обрезается границами 0 и 100, но сумма impact не равна разнице баллов точно. В ответе до 7 групп по убыванию |impact|, при равенстве по коду"
+  }
+}

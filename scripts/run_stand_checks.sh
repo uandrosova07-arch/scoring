@@ -27,6 +27,9 @@ export API_PORT=${E2E_API_PORT:-18080}
 export SCORING_PORT=${E2E_SCORING_PORT:-18000}
 export POSTGRES_PORT=${E2E_POSTGRES_PORT:-15432}
 export SCORING_MODE=External
+# Модель внешнего scoring на стенде. Резервные правила backend = rules-0.3, поэтому и тут rules-0.3,
+# пока backend не перенёс logreg-synthetic-0.1 (действует, если compose передаёт SCORING_MODEL контейнеру).
+export SCORING_MODEL=${SCORING_MODEL:-rules-0.3}
 export SIMULATORS_FAILURE_RATE=0
 API="http://localhost:$API_PORT"
 SCORING="http://localhost:$SCORING_PORT"

@@ -1,5 +1,8 @@
 # rules-0.3 на стороне backend
 
+> Обученная модель `logreg-synthetic-0.1` и предложение по её переносу в резервный расчёт: [logreg.md](logreg.md).
+> Ниже — rules-0.3, по которым backend считает сейчас.
+
 Статус: **внесено в backend** (по данным бэкендера, 24.10.2026): правки `RuleBasedScoringService`, общий эталон
 в тестах backend, заглушка scoring в общем compose заменена сервисом. Ниже — что именно было изменено, для справки и для проверки.
 Подтверждение в полном процессе: [../stand-checks.md](../stand-checks.md) (`scripts/run_stand_checks.sh`, режим RulesFallback должен

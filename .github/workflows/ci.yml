@@ -19,7 +19,8 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements*.txt
-      - run: pip install -r requirements-dev.txt
+      # requirements-train.txt: генератор и обучение. Без него тесты воспроизводимости обучения пропускаются.
+      - run: pip install -r requirements-train.txt
       - run: pytest -q
 
   publish:
@@ -43,10 +44,11 @@ jobs:
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
-          # Версия правил из кода: образ получает тег rules-X.Y, его и ставим в compose после согласованного изменения правил.
-          RULES=$(sed -n 's/^MODEL_VERSION = "\(.*\)"$/\1/p' app/rules.py)
-          test -n "$RULES"
-          echo "rules=${RULES}" >> "$GITHUB_OUTPUT"
+          # Модель по умолчанию из кода (app/model.py, DEFAULT_MODEL): образ получает тег с её версией, например
+          # logreg-synthetic-0.1. Тег rules-0.3 остаётся на прежнем образе и больше не переставляется.
+          MODEL=$(sed -n 's/^DEFAULT_MODEL = "\(.*\)"$/\1/p' app/model.py)
+          test -n "$MODEL"
+          echo "model=${MODEL}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -62,7 +64,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.image }}:${{ github.sha }}
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.rules }}
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.model }}
             ${{ steps.meta.outputs.image }}:latest
 
       # Передаём процессу деплоя из infra название компонента и версию образа.

@@ -7,6 +7,11 @@
 
 Положительные сценарии проходят весь путь клиента: решение → предложение → принятие → договор → демо-код → подписание → `Disbursed`.
 
+**С logreg-synthetic-0.1.** Новые образы scoring по умолчанию отвечают `logreg-synthetic-0.1`, а резервные правила backend пока
+rules-0.3. Скрипт экспортирует `SCORING_MODEL=rules-0.3`, но контейнер получит её, только если compose передаёт эту переменную
+сервису `scoring` (как в `docs/backend/compose.scoring.yml`). Иначе нужен тег образа с rules-0.3. Проверка: `curl localhost:18000/health`
+должен показать `rules-0.3`, иначе External упадёт на сверке версии. Переход на logreg: [backend/logreg.md](backend/logreg.md).
+
 ## Запуск
 
 Репозитории `probiinik` и `scoring` лежат рядом. Нужны Docker с Compose v2 и Python 3.12+ (зависимости не нужны).

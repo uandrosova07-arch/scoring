@@ -1,0 +1,209 @@
+{
+  "model_version": "logreg-synthetic-0.1",
+  "dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+  "rows": 29886,
+  "companies": 20000,
+  "split": {
+    "train": {
+      "rows": 20967,
+      "companies": 14000
+    },
+    "validation": {
+      "rows": 4529,
+      "companies": 3000
+    },
+    "test": {
+      "rows": 4390,
+      "companies": 3000
+    }
+  },
+  "companies_overlap": 0,
+  "C_search": [
+    {
+      "C": 0.003,
+      "val_log_loss": 0.21439,
+      "val_roc_auc": 0.8541
+    },
+    {
+      "C": 0.01,
+      "val_log_loss": 0.21381,
+      "val_roc_auc": 0.854
+    },
+    {
+      "C": 0.03,
+      "val_log_loss": 0.21372,
+      "val_roc_auc": 0.8542
+    },
+    {
+      "C": 0.1,
+      "val_log_loss": 0.21375,
+      "val_roc_auc": 0.8543
+    },
+    {
+      "C": 0.3,
+      "val_log_loss": 0.21378,
+      "val_roc_auc": 0.8543
+    },
+    {
+      "C": 1.0,
+      "val_log_loss": 0.2138,
+      "val_roc_auc": 0.8544
+    },
+    {
+      "C": 3.0,
+      "val_log_loss": 0.21381,
+      "val_roc_auc": 0.8543
+    }
+  ],
+  "selected_C": 0.03,
+  "constant_pd": 0.09143,
+  "train": {
+    "n": 20967,
+    "default_rate": 0.09143,
+    "model": {
+      "roc_auc": 0.8412,
+      "average_precision": 0.477,
+      "log_loss": 0.2252,
+      "brier": 0.06284,
+      "mean_pd": 0.09141
+    },
+    "constant": {
+      "roc_auc": 0.5,
+      "average_precision": 0.0914,
+      "log_loss": 0.3058,
+      "brier": 0.08307,
+      "mean_pd": 0.09143
+    }
+  },
+  "validation": {
+    "n": 4529,
+    "default_rate": 0.08655,
+    "model": {
+      "roc_auc": 0.8542,
+      "average_precision": 0.4742,
+      "log_loss": 0.2137,
+      "brier": 0.05987,
+      "mean_pd": 0.08949
+    },
+    "constant": {
+      "roc_auc": 0.5,
+      "average_precision": 0.0866,
+      "log_loss": 0.2946,
+      "brier": 0.07909,
+      "mean_pd": 0.09143
+    }
+  },
+  "test": {
+    "n": 4390,
+    "default_rate": 0.08861,
+    "model": {
+      "roc_auc": 0.8553,
+      "average_precision": 0.4733,
+      "log_loss": 0.2175,
+      "brier": 0.0611,
+      "mean_pd": 0.0887
+    },
+    "constant": {
+      "roc_auc": 0.5,
+      "average_precision": 0.0886,
+      "log_loss": 0.2994,
+      "brier": 0.08077,
+      "mean_pd": 0.09143
+    }
+  },
+  "test_by_grade": [
+    {
+      "grade": "A",
+      "share": 0.7396,
+      "default_rate": 0.0277,
+      "mean_pd": 0.033
+    },
+    {
+      "grade": "B",
+      "share": 0.0884,
+      "default_rate": 0.1082,
+      "mean_pd": 0.1016
+    },
+    {
+      "grade": "C",
+      "share": 0.0442,
+      "default_rate": 0.1856,
+      "mean_pd": 0.146
+    },
+    {
+      "grade": "D",
+      "share": 0.028,
+      "default_rate": 0.2033,
+      "mean_pd": 0.192
+    },
+    {
+      "grade": "E",
+      "share": 0.0998,
+      "default_rate": 0.4475,
+      "mean_pd": 0.4358
+    }
+  ],
+  "test_calibration_deciles": [
+    {
+      "decile": 1,
+      "mean_pd": 0.0086,
+      "default_rate": 0.0091,
+      "n": 439
+    },
+    {
+      "decile": 2,
+      "mean_pd": 0.0148,
+      "default_rate": 0.0114,
+      "n": 439
+    },
+    {
+      "decile": 3,
+      "mean_pd": 0.0207,
+      "default_rate": 0.0068,
+      "n": 439
+    },
+    {
+      "decile": 4,
+      "mean_pd": 0.0277,
+      "default_rate": 0.0228,
+      "n": 439
+    },
+    {
+      "decile": 5,
+      "mean_pd": 0.0358,
+      "default_rate": 0.0296,
+      "n": 439
+    },
+    {
+      "decile": 6,
+      "mean_pd": 0.0456,
+      "default_rate": 0.0433,
+      "n": 439
+    },
+    {
+      "decile": 7,
+      "mean_pd": 0.0606,
+      "default_rate": 0.0547,
+      "n": 439
+    },
+    {
+      "decile": 8,
+      "mean_pd": 0.0873,
+      "default_rate": 0.0934,
+      "n": 439
+    },
+    {
+      "decile": 9,
+      "mean_pd": 0.1505,
+      "default_rate": 0.1663,
+      "n": 439
+    },
+    {
+      "decile": 10,
+      "mean_pd": 0.4353,
+      "default_rate": 0.4487,
+      "n": 439
+    }
+  ],
+  "hidden_pd_test_roc_auc": 0.8777
+}

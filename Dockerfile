@@ -9,6 +9,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+# JSON-артефакт обученной модели: сервис читает его при старте (без sklearn и numpy).
+COPY models/*.json ./models/
+
+# Какая модель отвечает на /api/v1/score: logreg-synthetic-0.1 (по умолчанию) или rules-0.3.
+ENV SCORING_MODEL=logreg-synthetic-0.1
 
 # Не root.
 RUN useradd --system --uid 10001 scoring
