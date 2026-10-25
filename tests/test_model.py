@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from app import model
 from app.features import FEATURE_NAMES, GROUPS, raw_features
 from app.main import create_app
+from app.schemas import ScoreRequest
 
 ROOT = Path(__file__).parent.parent
 VERSION = "logreg-synthetic-0.1"
@@ -177,7 +178,8 @@ def test_response_format_unchanged():
 
 
 def test_health_and_switch(monkeypatch):
-    assert client.get("/health").json() == {"status": "ok", "model_version": VERSION}
+    assert client.get("/health").json()["model_version"] == VERSION
+    assert len(client.get("/health").json()["artifact_sha256"]) == 64
     monkeypatch.setenv("SCORING_MODEL", "rules-0.3")
     rules_client = TestClient(create_app())
     assert rules_client.get("/health").json()["model_version"] == "rules-0.3"
@@ -237,3 +239,60 @@ def test_retraining_reproduces_artifact():
     # Допуск на разные BLAS/процессоры; на той же машине совпадение до последнего знака.
     assert np.allclose(lr.coef_[0], [ART["coefficients"][c] for c in ART["columns"]], atol=1e-5)
     assert abs(lr.intercept_[0] - ART["intercept"]) < 1e-5
+
+
+@pytest.mark.parametrize("case_id,code,source", [("edge-no-bureau", "credit_history", "БКИ"), ("edge-no-fns", "tax_debt", "ФНС"), ("edge-no-fssp", "enforcement", "ФССП")])
+def test_missing_sources_do_not_assert_adverse_facts(case_id, code, source):
+    case = next(c for c in CASES if c["id"] == case_id)
+    response = model.score(ScoreRequest.model_validate(case["input"]))
+    text = model.explanation(code, case["input"], -5)
+    assert source in text and "не получен" in text
+    assert all(f.client_explanation == text for f in response.factors if f.code == code)
+    assert "Просрочки или списания" not in text and "производства повышают" not in text
+
+
+def test_dataset_fingerprint_tracks_observed_data_and_labels_only():
+    pytest.importorskip("pandas")
+    from ml.generate import generate, dataset_sha256
+    original = generate(100, seed=17)
+    changed = original.copy()
+    changed["_true_pd"] += 1e-14
+    assert dataset_sha256(original) == dataset_sha256(changed)
+    changed = original.copy()
+    changed.loc[0, "default_12m"] = 1 - changed.loc[0, "default_12m"]
+    assert dataset_sha256(original) != dataset_sha256(changed)
+    changed = original.copy()
+    changed.loc[0, "amount_rub"] += 1000
+    assert dataset_sha256(original) != dataset_sha256(changed)
+
+
+@pytest.mark.parametrize("broken", ["scale", "columns", "grades", "version"])
+def test_invalid_artifact_fails_startup(tmp_path, monkeypatch, broken):
+    data = json.loads(json.dumps(ART))
+    if broken == "scale": data["scaling"]["scale"]["log_revenue"] = 0
+    elif broken == "columns": data["columns"][0] = "unknown_feature"
+    elif broken == "grades": data["grades"][0]["min_score"] = 75
+    else: data["model_version"] = "wrong"
+    (tmp_path / f"{VERSION}.json").write_text(json.dumps(data), encoding="utf-8")
+    monkeypatch.setattr(model, "MODELS_DIR", tmp_path)
+    model.load.cache_clear()
+    try:
+        with pytest.raises(ValueError): create_app(VERSION)
+    finally:
+        model.load.cache_clear()
+
+
+def test_synthetic_requests_use_backend_compatible_guids():
+    import uuid
+    for case in CASES:
+        uuid.UUID(case["input"]["request_id"])
+
+
+def test_logreg_e2e_uses_separate_reduced_profile():
+    import runpy
+    script = runpy.run_path(str(ROOT / "scripts" / "e2e_backend.py"))
+    legacy = script["scenario_data"]("demo-medium", "rules-0.3")
+    learned = script["scenario_data"]("demo-medium", VERSION)
+    assert legacy["backend_login"] == "client_medium" and legacy["expected"]["risk_grade"] == "C"
+    assert learned["backend_login"] == "client_reduced" and learned["expected"]["risk_grade"] == "C"
+    assert script["DEMO"]["demo-medium"]["backend_login"] == "client_medium"

@@ -6,13 +6,15 @@
     "data": "ml/generate.py",
     "seed": 20261025,
     "companies": 20000,
-    "dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+    "dataset_sha256": "89fba5f6d12ac01c6eb37fb80f1a083c424969a91a6e7dede512220197dc3620",
     "split_seed": 42,
     "selected_C": 0.03,
     "solver": "lbfgs",
     "penalty": "l2",
     "sklearn": "1.9.1",
-    "python": "3.13.17"
+    "python": "3.13.17",
+    "legacy_dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+    "dataset_hash_format": "observed-columns-json-v1"
   },
   "input": "запрос POST /api/v1/score в формате контракта backend (docs/scoring-contract.md)",
   "features": [

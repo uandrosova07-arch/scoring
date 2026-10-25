@@ -22,6 +22,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
+import math
+import uuid
 from pathlib import Path
 
 import numpy as np
@@ -141,7 +144,7 @@ def to_request(row) -> dict:
     def num(x):
         return None if pd.isna(x) else float(x)
     return {
-        "request_id": f"synthetic-{int(row['application_id'])}",
+        "request_id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"alfacredit:synthetic:{int(row['application_id'])}")),
         "application": {"amount_rub": float(row["amount_rub"]), "term_months": int(row["term_months"]),
                         "estimated_monthly_payment_rub": float(row["estimated_monthly_payment_rub"]),
                         "collateral_offered": bool(row["collateral_offered"])},
@@ -161,8 +164,29 @@ def to_request(row) -> dict:
     }
 
 
+DATASET_HASH_FORMAT = "observed-columns-json-v1"
+
+
 def dataset_sha256(df: pd.DataFrame) -> str:
-    return hashlib.sha256(pd.util.hash_pandas_object(df, index=True).values.tobytes()).hexdigest()
+    """Canonical observed data + target; diagnostic latent floats do not affect the training fingerprint.
+
+    Missing values are null, whole numbers are integers, other floats have 12 significant digits.
+    This avoids platform-dependent raw DataFrame/hidden-floating-point hashes while retaining row order.
+    """
+    columns = sorted(c for c in df.columns if not c.startswith("_"))
+    def canonical(value):
+        if pd.isna(value):
+            return None
+        if isinstance(value, (bool, np.bool_)):
+            return bool(value)
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError("Non-finite observed data")
+        return int(number) if number.is_integer() else float(format(number, ".12g"))
+    rows = [[canonical(value) for value in row] for row in df[columns].itertuples(index=False, name=None)]
+    payload = json.dumps({"format": DATASET_HASH_FORMAT, "columns": columns, "rows": rows},
+                         ensure_ascii=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def main() -> None:

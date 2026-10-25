@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import datetime as dt
 import json
 import re
@@ -132,8 +133,20 @@ def _signing_code(api: Api, app_id: str, token: str, issued: dict) -> str:
     raise Failure("демо-код не найден ни в ответе, ни в ленте")
 
 
+def scenario_data(demo_id: str, model_version: str) -> dict:
+    company = copy.deepcopy(DEMO[demo_id])
+    if model_version == "logreg-synthetic-0.1":
+        controls = json.loads((ROOT / "data" / "conformance" / f"{model_version}.json").read_text(encoding="utf-8"))
+        target = "demo-reduced" if demo_id == "demo-medium" else demo_id
+        case = next(c for c in controls["cases"] if c["id"] == target)
+        company["expected"] = case["expected"]
+        if demo_id == "demo-medium":
+            company["backend_login"] = "client_reduced"
+    return company
+
+
 def run_scenario(api: Api, name: str, demo_id: str, manager: str, args) -> dict:
-    company = DEMO[demo_id]
+    company = scenario_data(demo_id, args.model)
     s = company["scenario"]
     exp = company["expected"]
     dec = company["decision"]["python"]["auto"]
@@ -220,6 +233,10 @@ def run_scenario(api: Api, name: str, demo_id: str, manager: str, args) -> dict:
         checks.eq("сумма договора", _num(contract.get("amount")), _num(dec["amount"]))
         checks.eq("ставка договора", _num(contract.get("interestRate")), _num(dec["interest_rate"]))
         checks.eq("строк в графике", len(contract.get("schedule") or []), s["term_months"])
+        if args.model == "logreg-synthetic-0.1":
+            for field in ("totalPayment", "totalInterest"):
+                checks.true(f"стоимость оффера {field} присутствует", isinstance(offer.get(field), (int, float)))
+                checks.eq(f"стоимость договора совпадает с оффером: {field}", _num(contract.get(field)), _num(offer.get(field)))
         result["contract"] = {"number": contract.get("number"), "amount": contract.get("amount"), "interestRate": contract.get("interestRate"),
                               "monthlyPayment": contract.get("monthlyPayment"), "totalPayment": contract.get("totalPayment")}
 

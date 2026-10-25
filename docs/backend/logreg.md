@@ -12,8 +12,7 @@
 | [LogRegScoringService.logreg-synthetic-0.1.cs](LogRegScoringService.logreg-synthetic-0.1.cs) | `src/AlfaCredit.Core/Features/Scoring/LogRegScoringService.cs` | расчёт по артефакту |
 | [LogRegConformanceTests.cs](LogRegConformanceTests.cs) | `tests/AlfaCredit.UnitTests/Processing/` | тест на контрольных входах |
 
-**C#-файлы не компилировались:** у ML в окружении нет .NET. Логика повторяет `app/model.py` построчно, типы взяты из
-`RuleBasedScoringService` rules-0.3. Правильность покажет `LogRegConformanceTests` на контрольных входах.
+C#-реализация перенесена и проверяется в backend вместе с общим эталоном. Файлы в этой папке — справочные копии. Для подключения также нужны выбор модели, копирование артефакта в output/publish и startup/readiness-проверки из backend-интеграции. Актуальный порядок: [../integration-logreg.md](../integration-logreg.md).
 
 ## Расчёт
 

@@ -1,5 +1,7 @@
 # scoring
 
+Текущая интеграция, новый профиль C и запуск одинакового External/Fallback: [docs/integration-logreg.md](docs/integration-logreg.md).
+
 Python-сервис оценки кредитного риска. Часть проекта AlfaCredit: backend (C#) вызывает его по
 `POST http://scoring:8000/api/v1/score`, получает балл, грейд A–E и объяснение, а решение по заявке принимает сам.
 Если сервис недоступен, backend считает по встроенным правилам и помечает результат как `RulesFallback`.

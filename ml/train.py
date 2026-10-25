@@ -28,7 +28,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from app.features import FEATURES, FEATURE_NAMES, GROUPS, raw_features
-from ml.generate import SEED, dataset_sha256, generate, to_request
+from ml.generate import DATASET_HASH_FORMAT, SEED, dataset_sha256, generate, to_request
 
 ROOT = Path(__file__).resolve().parent.parent
 MODEL_VERSION = "logreg-synthetic-0.1"
@@ -108,7 +108,7 @@ def export_artifact(pipe: Pipeline, c: float, data_sha: str) -> dict:
         "model_version": MODEL_VERSION,
         "kind": "logistic_regression",
         "target": "default_12m: условный дефолт в течение 12 месяцев после выдачи (синтетические данные)",
-        "training": {"data": "ml/generate.py", "seed": SEED, "companies": 20_000, "dataset_sha256": data_sha, "split_seed": SPLIT_SEED,
+        "training": {"data": "ml/generate.py", "seed": SEED, "companies": 20_000, "dataset_sha256": data_sha, "dataset_hash_format": DATASET_HASH_FORMAT, "split_seed": SPLIT_SEED,
                      "selected_C": c, "solver": "lbfgs", "penalty": "l2", "sklearn": sklearn.__version__, "python": platform.python_version()},
         "input": "запрос POST /api/v1/score в формате контракта backend (docs/scoring-contract.md)",
         "features": features,
@@ -155,7 +155,7 @@ def main() -> None:
     pipe = make_pipeline(best_c).fit(Xtr, ytr)
     base_rate = float(ytr.mean())
 
-    result = {"model_version": MODEL_VERSION, "dataset_sha256": data_sha, "rows": int(len(df)), "companies": int(df["company_id"].nunique()),
+    result = {"model_version": MODEL_VERSION, "dataset_sha256": data_sha, "dataset_hash_format": DATASET_HASH_FORMAT, "rows": int(len(df)), "companies": int(df["company_id"].nunique()),
               "split": {k: {"rows": int(len(v)), "companies": int(df["company_id"].iloc[v].nunique())} for k, v in parts.items()},
               "companies_overlap": 0, "C_search": search, "selected_C": best_c, "constant_pd": round(base_rate, 5)}
     for name in ("train", "validation", "test"):
@@ -201,6 +201,9 @@ def write_control_cases(pipe: Pipeline, df: pd.DataFrame, requests: list[dict], 
         pool = test[grades == g]
         for i in rng.choice(pool, size=min(4, len(pool)), replace=False):
             cases.append({"id": f"test-{g}-{int(df['application_id'].iloc[i])}", "description": f"Заявка из test, грейд {g}", "input": requests[i]})
+    reduced_path = ROOT / "data" / "requests" / "demo-reduced-logreg.json"
+    if reduced_path.exists():
+        cases.append({"id": "demo-reduced", "description": "Отдельный профиль client_reduced для меньшей суммы", "input": json.loads(reduced_path.read_text(encoding="utf-8"))})
     base = demo[0]["input"]
     for name, change in (("no-net-profit", ("company", "financials", "net_profit_rub", None)),
                          ("no-expenses", ("company", "financials", "expenses_rub", None)),

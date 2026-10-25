@@ -1,11 +1,5 @@
-// logreg-synthetic-0.1 для резервного расчёта backend: тот же расчёт, что app/model.py в сервисе scoring, по тому же JSON-артефакту
-// (models/logreg-synthetic-0.1.json → копия в backend). Набросок для переноса: в окружении ML нет .NET, файл НЕ компилировался.
-// Проверка — LogRegConformanceTests.cs на контрольных входах data/conformance/logreg-synthetic-0.1.json.
-//
-// Типы запроса и ответа взяты из RuleBasedScoringService (rules-0.3): ScoringRequest, ScoringOutcome, ScoringFactor, RiskGrades.
-// Вся арифметика в double (как в Python), decimal только на входе и в ScoringOutcome.ProbabilityOfDefault.
-
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text.Json;
 using AlfaCredit.Core.Abstractions;
 using AlfaCredit.Core.Domain.Scoring;
@@ -35,9 +29,9 @@ public sealed class LogRegScoringService : IScoringService
         ["expense_ratio"] = ("Доля расходов в выручке снижает расчётный риск.", "Расходы занимают большую долю выручки, это повышает риск."),
         ["debt_load"] = ("Платежи по кредитам невелики относительно прибыли.", "Платежи по кредитам велики относительно прибыли или прибыли нет."),
         ["business_age"] = ("Бизнес работает давно, это снижает риск.", "Бизнес молодой, это повышает риск."),
-        ["credit_history"] = ("Кредитная история без серьёзных просрочек снижает риск.", "Просрочки или списания в кредитной истории повышают риск."),
-        ["tax_debt"] = ("Налоговой задолженности и блокировок нет.", "Налоговая задолженность или блокировка счетов повышают риск."),
-        ["enforcement"] = ("Исполнительных производств нет.", "Исполнительные производства повышают риск."),
+        ["credit_history"] = ("Показатели кредитной истории снижают расчётный риск относительно обучающей выборки.", "Показатели кредитной истории повышают расчётный риск относительно обучающей выборки."),
+        ["tax_debt"] = ("Показатели налоговых обязательств снижают расчётный риск относительно обучающей выборки.", "Показатели налоговых обязательств повышают расчётный риск относительно обучающей выборки."),
+        ["enforcement"] = ("Показатели исполнительных производств снижают расчётный риск относительно обучающей выборки.", "Показатели исполнительных производств повышают расчётный риск относительно обучающей выборки."),
         ["collateral"] = ("Предложенный залог снижает риск.", "Без залога риск выше, чем с залогом."),
     };
     private const string Neutral = "Почти не влияет на оценку.";
@@ -51,6 +45,8 @@ public sealed class LogRegScoringService : IScoringService
         return Task.FromResult(Score(request));
     }
 
+    public static Artifact DefaultArtifact => Model.Value;
+
     public static ScoringOutcome Score(ScoringRequest request) => Score(request, Model.Value);
 
     public static ScoringOutcome Score(ScoringRequest request, Artifact art)
@@ -62,12 +58,32 @@ public sealed class LogRegScoringService : IScoringService
             var impact = Math.Clamp(RoundHalfAwayFromZero(-art.PointsPerLogit * p.GroupContributions[code]), -100, 100);
             var (positive, negative) = Texts[code];
             factors.Add(new ScoringFactor(code, group.Title, impact, Describe(code, request),
-                impact > 0 ? positive : impact < 0 ? negative : Neutral));
+                Explain(code, request, impact, positive, negative)));
         }
 
         var ordered = factors.OrderByDescending(f => Math.Abs(f.Impact)).ThenBy(f => f.Code, StringComparer.Ordinal).Take(MaxFactors).ToArray();
         return new ScoringOutcome(p.Score, RiskGrades.FromScore(p.Score), (decimal)p.Pd, ordered, Warnings(request),
             request.MissingInputs(), ModelVersion, ScoringSource.Rules);
+    }
+
+    private static string Explain(string code, ScoringRequest request, int impact, string positive, string negative)
+    {
+        var checks = request.Checks;
+        var missingSource = code switch
+        {
+            "credit_history" when checks.CreditBureau is null => "БКИ",
+            "tax_debt" when checks.Fns is null => "ФНС",
+            "enforcement" when checks.Fssp is null => "ФССП",
+            _ => null,
+        };
+        if (missingSource is not null)
+            return $"Ответ {missingSource} не получен: модель использует статистическое заполнение и признак отсутствующих данных.";
+        var fin = request.Company.Financials;
+        if (code == "debt_load" && fin.NetProfitRub is null)
+            return "Данные о прибыли отсутствуют: модель использует статистическое заполнение и признак пропуска.";
+        if (code == "expense_ratio" && (fin.ExpensesRub is null || fin.RevenueRub == 0))
+            return "Долю расходов определить нельзя: модель использует статистическое заполнение и признак пропуска.";
+        return impact > 0 ? positive : impact < 0 ? negative : Neutral;
     }
 
     public sealed record Prediction(double Logit, double Pd, int Score, IReadOnlyDictionary<string, double> GroupContributions);
@@ -235,6 +251,7 @@ public sealed class LogRegScoringService : IScoringService
 
     public sealed class Artifact
     {
+        public required string Sha256 { get; init; }
         public required string[] Columns { get; init; }
         public required string[] MissingIndicatorOrder { get; init; }
         public required Dictionary<string, double> ImputeValue { get; init; }
@@ -249,7 +266,8 @@ public sealed class LogRegScoringService : IScoringService
 
         public static Artifact Load(string path)
         {
-            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            var payload = File.ReadAllBytes(path);
+            using var doc = JsonDocument.Parse(payload);
             var r = doc.RootElement;
             if (r.GetProperty("model_version").GetString() != ModelVersion)
             {
@@ -266,8 +284,9 @@ public sealed class LogRegScoringService : IScoringService
                 e.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetDouble(), StringComparer.Ordinal);
 
             var explanation = r.GetProperty("explanation");
-            return new Artifact
+            var artifact = new Artifact
             {
+                Sha256 = Convert.ToHexStringLower(SHA256.HashData(payload)),
                 Columns = r.GetProperty("columns").EnumerateArray().Select(c => c.GetString()!).ToArray(),
                 MissingIndicatorOrder = r.GetProperty("missing_indicators").GetProperty("order").EnumerateArray().Select(c => c.GetString()!).ToArray(),
                 ImputeValue = features.ToDictionary(f => f.GetProperty("name").GetString()!, f => f.GetProperty("impute_value").GetDouble(), StringComparer.Ordinal),
@@ -283,6 +302,33 @@ public sealed class LogRegScoringService : IScoringService
                         g.Value.GetProperty("features").EnumerateArray().Select(f => f.GetString()!).ToArray())))
                     .ToList(),
             };
+            var expectedColumns = FeatureNames.Concat(artifact.MissingIndicatorOrder.Select(n => $"missing:{n}")).ToArray();
+            if (!artifact.Columns.SequenceEqual(expectedColumns) || artifact.Columns.Distinct().Count() != artifact.Columns.Length
+                || artifact.MissingIndicatorOrder.Distinct().Count() != artifact.MissingIndicatorOrder.Length
+                || artifact.MissingIndicatorOrder.Any(n => !FeatureNames.Contains(n)))
+                throw new InvalidOperationException("Invalid scoring artifact columns or missing indicators.");
+            if (!double.IsFinite(artifact.Intercept) || !double.IsFinite(artifact.PointsPerLogit) || artifact.PointsPerLogit <= 0
+                || !double.IsFinite(artifact.PdAtScore0) || !double.IsFinite(artifact.PdAtScore100)
+                || artifact.PdAtScore100 < 0 || artifact.PdAtScore0 > 1 || artifact.PdAtScore100 >= artifact.PdAtScore0)
+                throw new InvalidOperationException("Invalid scoring artifact intercept or score mapping.");
+            foreach (var name in FeatureNames)
+                if (!artifact.ImputeValue.TryGetValue(name, out var fill) || !double.IsFinite(fill))
+                    throw new InvalidOperationException($"Invalid imputation value for {name}.");
+            foreach (var name in artifact.Columns)
+                if (!artifact.Mean.TryGetValue(name, out var mean) || !double.IsFinite(mean)
+                    || !artifact.Scale.TryGetValue(name, out var scale) || !double.IsFinite(scale) || scale <= 0
+                    || !artifact.Coefficients.TryGetValue(name, out var coef) || !double.IsFinite(coef))
+                    throw new InvalidOperationException($"Invalid scoring parameters for {name}.");
+            var groupFeatures = artifact.Groups.SelectMany(g => g.Group.Features).ToArray();
+            if (!groupFeatures.Order().SequenceEqual(FeatureNames.Order())
+                || !artifact.Groups.Select(g => g.Code).Order().SequenceEqual(Texts.Keys.Order()))
+                throw new InvalidOperationException("Invalid scoring explanation groups.");
+            var expectedGrades = new[] { ("A", 80), ("B", 65), ("C", 50), ("D", 35), ("E", 0) };
+            var grades = r.GetProperty("grades").EnumerateArray().Select(g =>
+                (g.GetProperty("grade").GetString()!, g.GetProperty("min_score").GetInt32())).ToArray();
+            if (!grades.SequenceEqual(expectedGrades))
+                throw new InvalidOperationException("Scoring artifact grades differ from the credit policy.");
+            return artifact;
         }
     }
 }

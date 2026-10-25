@@ -1,6 +1,6 @@
 {
   "model_version": "logreg-synthetic-0.1",
-  "dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+  "dataset_sha256": "89fba5f6d12ac01c6eb37fb80f1a083c424969a91a6e7dede512220197dc3620",
   "rows": 29886,
   "companies": 20000,
   "split": {
@@ -205,5 +205,7 @@
       "n": 439
     }
   ],
-  "hidden_pd_test_roc_auc": 0.8777
+  "hidden_pd_test_roc_auc": 0.8777,
+  "legacy_dataset_sha256": "d0a85d26b0125483b91e7fb128c2edec03e543551ddf9d525a9171272ce9a9ff",
+  "dataset_hash_format": "observed-columns-json-v1"
 }

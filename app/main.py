@@ -19,8 +19,10 @@ def create_app(model_version: str | None = None) -> FastAPI:
     if version not in MODELS:
         raise RuntimeError(f"SCORING_MODEL={version}: неизвестная модель, доступны {', '.join(MODELS)}")
     scorer = MODELS[version]
+    artifact_hash = None
     if version == model.DEFAULT_MODEL:
-        model.load(version)  # артефакт читается при старте: битый файл должен ронять запуск, а не запрос
+        artifact_hash = model.load(version)["_artifact_sha256"]
+        # Artifact validation and identity are fixed at startup.
 
     app = FastAPI(
         title="Scoring service",
@@ -51,7 +53,10 @@ def create_app(model_version: str | None = None) -> FastAPI:
 
     @app.get("/health")
     def health() -> dict[str, str]:
-        return {"status": "ok", "model_version": version}
+        result = {"status": "ok", "model_version": version}
+        if version == model.DEFAULT_MODEL:
+            result["artifact_sha256"] = artifact_hash
+        return result
 
     return app
 

@@ -11,6 +11,7 @@ impact = −points_per_logit · вклад (линейное приближен�
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 from functools import lru_cache
 from pathlib import Path
@@ -29,19 +30,50 @@ TEXTS = {
     "expense_ratio": ("Доля расходов в выручке снижает расчётный риск.", "Расходы занимают большую долю выручки, это повышает риск."),
     "debt_load": ("Платежи по кредитам невелики относительно прибыли.", "Платежи по кредитам велики относительно прибыли или прибыли нет."),
     "business_age": ("Бизнес работает давно, это снижает риск.", "Бизнес молодой, это повышает риск."),
-    "credit_history": ("Кредитная история без серьёзных просрочек снижает риск.", "Просрочки или списания в кредитной истории повышают риск."),
-    "tax_debt": ("Налоговой задолженности и блокировок нет.", "Налоговая задолженность или блокировка счетов повышают риск."),
-    "enforcement": ("Исполнительных производств нет.", "Исполнительные производства повышают риск."),
+    "credit_history": ("Показатели кредитной истории снижают расчётный риск относительно обучающей выборки.", "Показатели кредитной истории повышают расчётный риск относительно обучающей выборки."),
+    "tax_debt": ("Показатели налоговых обязательств снижают расчётный риск относительно обучающей выборки.", "Показатели налоговых обязательств повышают расчётный риск относительно обучающей выборки."),
+    "enforcement": ("Показатели исполнительных производств снижают расчётный риск относительно обучающей выборки.", "Показатели исполнительных производств повышают расчётный риск относительно обучающей выборки."),
     "collateral": ("Предложенный залог снижает риск.", "Без залога риск выше, чем с залогом."),
 }
 NEUTRAL = "Почти не влияет на оценку."
 
 
+def validate_artifact(artifact: dict, version: str) -> None:
+    if artifact.get("model_version") != version:
+        raise ValueError("Artifact model version does not match the selected model")
+    features = artifact["features"]
+    if [f["name"] for f in features] != list(FEATURE_NAMES):
+        raise ValueError("Artifact feature order does not match runtime")
+    missing = artifact["missing_indicators"]["order"]
+    columns = list(FEATURE_NAMES) + [f"missing:{name}" for name in missing]
+    if len(set(missing)) != len(missing) or not set(missing) <= set(FEATURE_NAMES) or artifact["columns"] != columns:
+        raise ValueError("Invalid artifact columns or missing indicators")
+    for feature in features:
+        if not math.isfinite(feature["impute_value"]):
+            raise ValueError("Invalid imputation value")
+    for name in columns:
+        values = [artifact["coefficients"][name], artifact["scaling"]["mean"][name], artifact["scaling"]["scale"][name]]
+        if not all(math.isfinite(value) for value in values) or values[2] <= 0:
+            raise ValueError(f"Invalid scoring parameters: {name}")
+    mapping = artifact["score"]
+    if not 0 <= mapping["pd_at_score_100"] < mapping["pd_at_score_0"] <= 1:
+        raise ValueError("Invalid PD/score mapping")
+    if not math.isfinite(artifact["intercept"]) or not math.isfinite(artifact["explanation"]["points_per_logit"]) or artifact["explanation"]["points_per_logit"] <= 0:
+        raise ValueError("Invalid model intercept or explanation scale")
+    groups = artifact["explanation"]["groups"]
+    if set(groups) != set(TEXTS) or sorted(f for g in groups.values() for f in g["features"]) != sorted(FEATURE_NAMES):
+        raise ValueError("Invalid explanation groups")
+    expected = [{"grade": g, "min_score": value} for g, value in zip("ABCDE", (80, 65, 50, 35, 0))]
+    if artifact["grades"] != expected:
+        raise ValueError("Artifact grades differ from the credit policy")
+
+
 @lru_cache(maxsize=4)
 def load(model_version: str = DEFAULT_MODEL) -> dict:
-    artifact = json.loads((MODELS_DIR / f"{model_version}.json").read_text(encoding="utf-8"))
-    assert artifact["model_version"] == model_version
-    assert [f["name"] for f in artifact["features"]] == list(FEATURE_NAMES), "порядок признаков артефакта не совпадает с кодом"
+    payload = (MODELS_DIR / f"{model_version}.json").read_bytes()
+    artifact = json.loads(payload)
+    validate_artifact(artifact, model_version)
+    artifact["_artifact_sha256"] = hashlib.sha256(payload).hexdigest()
     return artifact
 
 
@@ -117,6 +149,26 @@ def _warnings(req: dict) -> list[str]:
     return out
 
 
+def explanation(code: str, req: dict, impact: int) -> str:
+    checks = req.get("checks") or {}
+    missing = {
+        "credit_history": ("credit_bureau", "БКИ"),
+        "tax_debt": ("fns", "ФНС"),
+        "enforcement": ("fssp", "ФССП"),
+    }
+    if code in missing:
+        source, title = missing[code]
+        if checks.get(source) is None:
+            return f"Ответ {title} не получен: модель использует статистическое заполнение и признак отсутствующих данных."
+    fin = req["company"]["financials"]
+    if code == "debt_load" and fin.get("net_profit_rub") is None:
+        return "Данные о прибыли отсутствуют: модель использует статистическое заполнение и признак пропуска."
+    if code == "expense_ratio" and (fin.get("expenses_rub") is None or fin["revenue_rub"] == 0):
+        return "Долю расходов определить нельзя: модель использует статистическое заполнение и признак пропуска."
+    positive, negative = TEXTS[code]
+    return positive if impact > 0 else negative if impact < 0 else NEUTRAL
+
+
 def score(req: ScoreRequest, model_version: str = DEFAULT_MODEL) -> ScoreResponse:
     data = req.model_dump()
     art = load(model_version)
@@ -125,8 +177,7 @@ def score(req: ScoreRequest, model_version: str = DEFAULT_MODEL) -> ScoreRespons
     ppl = art["explanation"]["points_per_logit"]
     for code, c in r["group_contributions"].items():
         impact = max(-100, min(100, _round_half_away(-ppl * c)))
-        positive, negative = TEXTS[code]
-        text = positive if impact > 0 else negative if impact < 0 else NEUTRAL
+        text = explanation(code, data, impact)
         factors.append(Factor(code=code, title=art["explanation"]["groups"][code]["title"], impact=impact,
                               value=describe(code, data), client_explanation=text))
     factors.sort(key=lambda f: (-abs(f.impact), f.code))

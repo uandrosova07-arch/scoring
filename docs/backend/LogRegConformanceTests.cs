@@ -10,7 +10,7 @@ namespace AlfaCredit.UnitTests.Processing;
 /// Контрольные входы logreg-synthetic-0.1 (data/conformance/logreg-synthetic-0.1.json из репозитория scoring, копия в
 /// Scoring/conformance-logreg-synthetic-0.1.json). Ожидаемые PD и логит посчитаны sklearn при обучении; тот же файл проверяет
 /// tests/test_model.py в scoring. Артефакт модели: Scoring/logreg-synthetic-0.1.json (копия models/logreg-synthetic-0.1.json).
-/// Набросок: в окружении ML нет .NET, файл не компилировался.
+/// Shared Python/C# model contract, including missing-data explanations.
 /// </summary>
 public sealed class LogRegConformanceTests
 {
