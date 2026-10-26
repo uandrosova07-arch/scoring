@@ -21,11 +21,9 @@ Python-сервис оценки кредитного риска. Часть п�
 Согласование с резервными C#-правилами backend и результаты сверки: [docs/grade-comparison.md](docs/grade-comparison.md); что внесено в backend: [docs/backend/README.md](docs/backend/README.md).
 Подсказка для формы заявки (не решение): [docs/preview.md](docs/preview.md). Сквозные проверки стенда: [docs/stand-checks.md](docs/stand-checks.md).
 
-## Запуск всего продукта
+## Место в проекте
 
-Для кабинета, API, PostgreSQL и ML используй [backend README](https://github.com/GatheredSatyr53/probiinik#быстрый-запуск-полного-продукта) и `scripts/start-demo.ps1` из backend. Кабинет: **http://localhost:3000**, API: **http://localhost:18080/swagger**, ML health: **http://localhost:8000/health**. Одинаковая модель Python/C# — `logreg-synthetic-0.1`. Устанавливать Python или обучающие библиотеки на хост для этого запуска не требуется.
-
-Ниже описан отдельный запуск только сервиса ML.
+Полный продукт, общая документация и запуск четырёх сервисов находятся в [NaOpite/alfacredit](https://github.com/NaOpite/alfacredit). Совместимые версии заданы в components.lock главного репозитория. Здесь описаны модель, сервис, данные, обучение и тесты ML.
 
 ## Запуск ML
 
@@ -76,7 +74,7 @@ python scripts/smoke.py http://scoring:8000  # любой другой адре�
 
 Логистическая регрессия перенесена в C#, общий артефакт и 33 контрольных случая сверяются с Python. На рабочем демо проверены режимы External и RulesFallback; для уменьшенной суммы используется отдельный `client_reduced`. Подробности: [docs/integration-logreg.md](docs/integration-logreg.md).
 
-После запуска полного демо из backend сквозная проверка выполняется из этого ML-каталога:
+После запуска полной поставки из главного репозитория сквозная проверка выполняется из этого ML-каталога:
 
 ```bash
 python scripts/e2e_backend.py --api http://localhost:18080 --scoring http://localhost:8000 --mode External --model logreg-synthetic-0.1
@@ -191,7 +189,7 @@ python scripts/demo_comparison.py examples http://localhost:8000  # пересо
 
 ## Сборка и деплой
 
-В репозитории настроены проверки и публикация образа в реестр. Передача обновления в отдельный `infra` — опциональный CI-сценарий при наличии соответствующих настроек. Проверяемая локальная поставка запускается через Compose из backend.
+В репозитории настроены проверки и публикация образа в реестр. Передача обновления в отдельный `infra` — опциональный CI-сценарий при наличии соответствующих настроек. Проверяемая локальная поставка запускается через Compose из NaOpite/alfacredit.
 Описана в `.github/workflows/ci.yml`:
 
 1. Pull request и push в `main`: установка зависимостей (`requirements-train.txt`, включая sklearn для тестов обучения) и `pytest`.

@@ -2,7 +2,7 @@
 
 В полном демо используется **logreg-synthetic-0.1**, перенесённая в C#. Python и локальный резервный расчёт загружают одинаковый JSON. Источник fallback называется `RulesFallback` для совместимости API; это не переключение logreg на старые правила.
 
-Актуальная инструкция: [../integration-logreg.md](../integration-logreg.md). Запуск всего продукта — в [backend README](https://github.com/GatheredSatyr53/probiinik#быстрый-запуск-полного-продукта). При запуске не нужно повторно копировать справочные файлы из этой папки в backend.
+Актуальная инструкция: [../integration-logreg.md](../integration-logreg.md). Запуск всего продукта — в [главном README](https://github.com/NaOpite/alfacredit#запуск). При запуске не нужно повторно копировать справочные файлы из этой папки в backend.
 
 ## Файлы logreg
 
